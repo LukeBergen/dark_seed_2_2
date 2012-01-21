@@ -1,16 +1,21 @@
 require './game_object'
+require './notification'
 
 class Game
   
   def initialize(parent_win)
     @game_window = parent_win
     @game_objects = load_game_objects()
+    @notifications = []
+    @frames = 0
   end
   
   def tick
     @game_objects.each do |obj_name, obj|
       obj.tick
     end
+    check_notifications
+    @frames += 1
   end
   
   def load_state(state=nil)
@@ -19,6 +24,7 @@ class Game
     else
       @game_objects["mark"].show
       @game_objects["mark"].position = [300, 300]
+      @game_objects["mark"].set_image("idle.png")
     end
   end
   
@@ -27,10 +33,46 @@ class Game
   end
   
   def left_click(x, y)
-    @game_objects["mark"].start_animation("test")
-    @game_objects["mark"].move(x, y) do
-      stop_animation
-      set_image("idle.png")
+    # figure out action
+    @game_objects.each do |obj_name, obj|
+      next if (obj_name == "game")
+      if (x >= obj.x && y >= obj.y && x <= (obj.x + obj.width) && y <= (obj.y + obj.height))
+        obj.click(self, x,y)
+      else
+        do_player_move(x, y)
+      end
+    end
+  end
+  
+  def do_player_move(x, y)
+    @notifications.each do |noti|
+      if (noti.obj_name == "mark" && noti.message = "move complete")
+        @notifications.delete(noti)
+      end
+    end
+    @game_objects["mark"].start_animation("move")
+    noti = Notification.new(self, "mark", "move complete") do
+      @game_objects["mark"].stop_animation
+      @game_objects["mark"].set_image("idle.png")
+    end
+    @notifications << noti
+    @game_objects["mark"].move(x, y, noti)
+  end
+  
+  def notify(obj, message)
+    @notifications.each do |noti|
+      if (noti.obj_name == obj.name && noti.message == message)
+        noti.triggered = true
+      end
+    end
+  end
+  
+  def check_notifications
+    @notifications.each do |noti|
+      if (noti.triggered)
+        noti.exec
+        @notifications.delete(noti)
+      end
     end
   end
   

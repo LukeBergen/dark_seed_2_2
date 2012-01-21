@@ -18,6 +18,8 @@ class GameWindow < Gosu::Window
     @game.game_objects.each do |obj_name, obj|
       obj.draw if obj.show?
     end
+    mouse_img = @game.game_objects["game"].images["mouse.png"]
+    mouse_img.draw(self.mouse_x - (mouse_img.width / 2), self.mouse_y - (mouse_img.height / 2), 0)
   end
   
   def button_down(id)
