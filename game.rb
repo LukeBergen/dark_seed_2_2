@@ -1,12 +1,16 @@
 require './game_object'
 require './notification'
+require './area'
 
 class Game
   
   def initialize(parent_win)
     @game_window = parent_win
-    @game_objects = load_game_objects()
+    @game_objects = load_game_objects
+    @areas = load_areas
+    @current_area = nil
     @notifications = []
+    @inventory = []
     @frames = 0
   end
   
@@ -18,10 +22,18 @@ class Game
     @frames += 1
   end
   
-  def load_state(state=nil)
+  def load_areas
+    
+  end
+  
+  def load_state(state="default")
     if (state)
       # TODO if state is passed in, load from a state file or something
+      state = YAML::load("./media/states/#{state}")
+      @current_area = state["current_area"]
+      
     else
+      @current_area = "dev_room"
       @game_objects["mark"].show
       @game_objects["mark"].position = [300, 300]
       @game_objects["mark"].set_image("idle.png")
@@ -34,17 +46,18 @@ class Game
   
   def left_click(x, y)
     # figure out action
+    clicked_obj = nil
     @game_objects.each do |obj_name, obj|
       next if (obj_name == "game")
       if (x >= obj.x && y >= obj.y && x <= (obj.x + obj.width) && y <= (obj.y + obj.height))
-        obj.click(self, x,y)
-      else
-        do_player_move(x, y)
+        clicked_obj = obj
       end
     end
+    
+    do_player_move(x, y)
   end
   
-  def do_player_move(x, y)
+  def do_player_move(x, y, &after_move)
     @notifications.each do |noti|
       if (noti.obj_name == "mark" && noti.message = "move complete")
         @notifications.delete(noti)
@@ -54,6 +67,7 @@ class Game
     noti = Notification.new(self, "mark", "move complete") do
       @game_objects["mark"].stop_animation
       @game_objects["mark"].set_image("idle.png")
+      self.instance_eval(after_move)
     end
     @notifications << noti
     @game_objects["mark"].move(x, y, noti)

@@ -69,8 +69,9 @@ class GameObject
     @moving = true
   end
   
-  def click(x, y)
+  def click(game, x, y)
     puts "I've been clicked and I am #{name}"
+    "success"
   end
   
   def tick

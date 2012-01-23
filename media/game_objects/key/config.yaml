@@ -1,0 +1,21 @@
+---
+on examine: dialog
+dialog:
+  initial state:
+  - id: first
+    text: Oh my gosh, it's a key.  I should pick it up.
+    audio: audio file
+    options:
+      monolog: true
+  post farmer shot:
+  - id: first
+    text: Hey it's a key.  I sure wish I hadn't shot that guy.
+    audio: audio file
+    options:
+      monolog: true
+on click: move to and examine
+on examine: to inventory
+player move to position:
+- 10
+- 0
+player move to image: idle.png
