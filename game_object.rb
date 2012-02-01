@@ -176,7 +176,7 @@ class GameObject
   def monologs()
     {
       "test" => {
-        "text" => "This is some text{NEWLINE}NEW LINE",
+        "text" => "This is some text{NEWLINE}NEW LINE{NEWLINE}Then WHOLE NOTHER NEW LINE{NEWLINE}Then the last one",
         "audio" => "audio file"
       }
     }
