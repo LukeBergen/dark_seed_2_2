@@ -1,17 +1,12 @@
 class Notification
   
-  attr_accessor :context, :obj_name, :message, :proc, :triggered
+  attr_accessor :obj_name, :message, :triggered, :params
   
-  def initialize(context, obj_name, message, &block)
-    @context = context
+  def initialize(obj_name, message, params=nil)
     @obj_name = obj_name
     @message = message
-    @proc = block
     @triggered = false
-  end
-  
-  def exec
-    @context.instance_eval(&@proc)
+    @params = params
   end
   
   def trigger

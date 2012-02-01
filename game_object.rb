@@ -4,10 +4,10 @@ require './animation'
 
 class GameObject
   
-  attr_accessor :x, :y, :name
+  attr_accessor :x, :y, :name, :state, :game
   
-  def initialize(win, name)
-    @game_window = win
+  def initialize(game_obj, name)
+    @game = game_obj
     @name = name
     @x = @y = 0.0
     @dx = @dy = @new_x = @new_y = nil
@@ -18,7 +18,7 @@ class GameObject
     @current_animation = nil
     @notify_when_done = nil
     @current_image = nil
-    load_media()
+    reload()
   end
   
   def show?
@@ -42,11 +42,11 @@ class GameObject
   end
   
   def width
-    @current_image.width
+    @current_image.width if @current_image
   end
   
   def height
-    @current_image.height
+    @current_image.height if @current_image
   end
   
   def current_image
@@ -67,11 +67,6 @@ class GameObject
     
     @notify_when_done = notification
     @moving = true
-  end
-  
-  def click(game, x, y)
-    puts "I've been clicked and I am #{name}"
-    "success"
   end
   
   def tick
@@ -115,7 +110,7 @@ class GameObject
   end
   
   def load_media
-    dirname = "./media/game_objects/#{@name}"
+    dirname = "./data/game_objects/#{@name}"
     
     if (File.exists?("#{dirname}/animations"))
       Dir.foreach("#{dirname}/animations") do |ani_dir|
@@ -124,7 +119,7 @@ class GameObject
           Dir.foreach("#{dirname}/animations/#{ani_dir}") do |filename|
             puts "loading animation #{dirname}/animations/#{ani_dir}"
             if (filename != "." && filename != ".." && filename != ".DS_Store" && filename != "config.yml")
-              ani << Gosu::Image.new(@game_window, "#{dirname}/animations/#{ani_dir}/#{filename}", false)
+              ani << Gosu::Image.new(game.window, "#{dirname}/animations/#{ani_dir}/#{filename}", false)
             end
             if (filename == "config.yml")
               cfg = YAML::load(File.read("#{dirname}/animations/#{ani_dir}/config.yml"))
@@ -142,7 +137,7 @@ class GameObject
       Dir.foreach("#{dirname}/images") do |image_file|
         if (image_file != "." && image_file != ".." && image_file != ".DS_Store")
           puts "loading image #{dirname}/images/#{image_file}"
-          @images[image_file] = Gosu::Image.new(@game_window, "#{dirname}/images/#{image_file}", false)
+          @images[image_file] = Gosu::Image.new(game.window, "#{dirname}/images/#{image_file}", false)
         end
       end
     end
@@ -154,7 +149,59 @@ class GameObject
     end
     
   end
+  
+  def reload()
+    load_media()
+    load_logic()
+  end
+  
+  def load_logic()
+    # first require anything under data/game_objects/#{@name}/logic.rb
+    # then require everything under data/state/current/logics/#{@name}
+    begin
+      load("./data/game_objects/#{@name}/logic.rb")
+      self.extend(Kernel.const_get(@name))
+    rescue LoadError
+    end
+  end
+  
+  def on_click(mouse_x, mouse_y)
+    on_examine()
+  end
+  
+  def on_examine()
+    game.do_monolog(monologs["test"])
+  end
+  
+  def monologs()
+    {
+      "test" => {
+        "text" => "This is some text{NEWLINE}NEW LINE",
+        "audio" => "audio file"
+      }
+    }
+  end
+  
+  def dialogs()
+    {}
+  end
+  
+  def do_dialog()
     
+  end
+  
+  def set_state()
+    
+  end
+  
+  def respond_to_notification(message, params=nil)
+    if (params && params.is_a?(Array))
+      params.each do |p|
+        self.instance_eval(p)
+      end
+    end
+  end
+  
 end
 
 # go = GameObject.new(Gosu::Window.new(640, 480, false), "main_guy")

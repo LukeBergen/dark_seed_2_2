@@ -1,5 +1,6 @@
 ---
-on examine: dialog
+on examine:
+  dialog: true
 dialog:
   initial dialog:
   - id: ask whats up
@@ -47,6 +48,9 @@ dialog:
     text: you idiot, now I'm gonna die.  buhhhhhh I'm dead
     audio: audio file
     set dialog: post shooting
+  post shooting:
+    set on examine:
+      monolog: 
 on click:
   - move to and examine: true
 on use item:

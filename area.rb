@@ -8,6 +8,4 @@ class Area
     @game_objects = []
   end
   
-  
-  
 end
