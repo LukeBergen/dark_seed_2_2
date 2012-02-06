@@ -190,8 +190,8 @@ class GameObject
     
   end
   
-  def set_state()
-    
+  def set_state(obj_name, state_name, state_value)
+    @game.set_state(obj_name, state_name, state_value)
   end
   
   def respond_to_notification(message, params=nil)

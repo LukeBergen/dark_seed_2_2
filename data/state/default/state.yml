@@ -1,0 +1,16 @@
+---
+Current Area:
+  dev_room
+Game State:
+  FarmerJim:
+    next dialog: first dialog
+    on examine: dialog
+    current image: idle.png
+    current area: dev_room
+    x pos: 20
+    y pos: 20
+  mark:
+    current image: idle.png
+    current area: dev_room
+    x pos: 300
+    y pos: 300

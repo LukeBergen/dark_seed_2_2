@@ -17,34 +17,34 @@ module FarmerJim
           {
             "text"    => "Investigating my brothers death",
             "audio"   => "audio file",
-            "actions" => ["set_state('next dialog', 'why investigating')", "do_dialog()"]
+            "actions" => ["set_state('Farmer Jim', 'next dialog', 'why investigating')", "do_dialog()"]
           },
           {
             "text"    => "Just visiting the ol' town",
             "audio"   => "audio file",
-            "actions" => ["set_state('next dialog', 'thats nice')", "do_dialog()"]
+            "actions" => ["set_state('Farmer Jim', 'next dialog', 'thats nice')", "do_dialog()"]
           }
         ]
       },
       "why investigating" => {
         "text"      => "There's nothing here to investigate! Go away now!",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('next dialog', 'I told you')"]}]
+        "responses" => [{"actions" => ["set_state('Farmer Jim', 'next dialog', 'I told you')"]}]
       },
       "I told you" => {
         "text"      => "I told you there's nothing to investigate, now go away",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('next dialog', 'I told you')"]}]
+        "responses" => [{"actions" => ["set_state('Farmer Jim', 'next dialog', 'I told you')"]}]
       },
       "thats nice" => {
         "text"  => "Well that's nice. Maybe we'll see each other around again soon.\nI have to go now.  Bye",
         "audio" => "audio file",
-        "responses" => [{"text"=>"Ok, nice seeing you again.", "audio" => "audio file", "actions" => ["set_state('next dialog', 'have to go')"]}]
+        "responses" => [{"text"=>"Ok, nice seeing you again.", "audio" => "audio file", "actions" => ["set_state('Farmer Jim', 'next dialog', 'have to go')"]}]
       },
       "have to go" => {
         "text"      => "Like I said, I have to be going.  Bye now",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('next dialog', 'have to go')"]}]
+        "responses" => [{"actions" => ["set_state('Farmer Jim', 'next dialog', 'have to go')"]}]
       }
     }
   end
@@ -52,10 +52,7 @@ module FarmerJim
   def on_examine()
     # based on what the state is, (and even using the game's state for global variables and such)
     # do whatever needs to be done on this object being examined.
-    case state["on examine"]
-      when "do dialog"
-        do_dialog()
-    end
+    puts "I'm Farmer Jim and I just been probed"
   end
   
 end

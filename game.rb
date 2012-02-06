@@ -10,12 +10,13 @@ class Game
   
   def initialize(parent_win)
     @game_window = parent_win
-    @game_objects = load_game_objects
-    @areas = load_areas
+    @game_objects = load_game_objects()
+    @areas = load_areas()
     @current_area = nil
     @notifications = []
     @inventory = []
     @frames = 0
+    @state = load_state()
   end
   
   def tick
@@ -38,12 +39,27 @@ class Game
     @game_window
   end
   
-  def load_state(state="default")
-    if (!state)
+  def load_state(state_name="default")
+    if (state_name)
       # TODO if state is passed in, load from a state file or something
-      state = YAML::load("./data/states/#{state}")
-      @current_area = state["current_area"]
+      state = YAML::load(File.read("./data/state/#{state_name}/state.yml"))
+      @current_area = state["Current Area"]
+      @state = state["Game State"]
+      @state.each do |obj_name, variables|
+        if (variables.keys.include?("current image"))
+          @game_objects[obj_name].set_image(variables["current image"])
+        end
+        if (variables.keys.include?("current area"))
+          if @areas.keys.include?(variables["current area"])
+            @areas[variables["current area"]].game_objects << obj_name
+          end
+        end
+        if (variables.keys.include?("x pos") && variables.keys.include?("y pos"))
+          @game_objects[obj_name].position = [variables["x pos"], variables["y pos"]]
+        end
+      end
       
+      puts "EVERYTHING LOADED."
     else
       @current_area = "dev_room"
       @game_objects["mark"].show
@@ -126,7 +142,7 @@ class Game
     objs = {}
     objs_dir = "./data/game_objects"
     Dir.entries(objs_dir).each do |obj_name|
-      if (obj_name != "." && obj_name != ".." && obj_name != ".DS_Store")
+      if (file_valid?(obj_name))
         puts "loading game object for #{obj_name}"
         objs[obj_name] = GameObject.new(self, obj_name)
       end
