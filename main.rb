@@ -4,7 +4,7 @@ require './game'
 class GameWindow < Gosu::Window
   def initialize
     super 800, 600, false
-    self.caption = "Gosu Tutorial Game"
+    self.caption = "Dark Seed 2: 2"
     @game = Game.new(self)
     @dialog_font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @dialog_scroll_height = 0

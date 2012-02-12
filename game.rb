@@ -99,12 +99,12 @@ class Game
       end
     end
     @game_objects["mark"].start_animation("move")
-    noti = register_notification("mark", "move complete", ["stop_animation", "set_image('idle.png')"] + (after_move || []))
+    noti = register_notification("mark", "move complete", ["game_objects['mark'].stop_animation", "game_objects['mark'].set_image('idle.png')"] + (after_move || []))
     @game_objects["mark"].move(x, y, noti)
   end
   
-  def do_monolog(monolog)
-    @current_dialog_text = monolog["text"]
+  def do_dialog(dialog)
+    @current_dialog_text = dialog["text"]
   end
   
   def finish_dialog
@@ -132,7 +132,12 @@ class Game
   def check_notifications
     @notifications.each do |noti|
       if (noti.triggered)
-        game_objects[noti.obj_name].respond_to_notification(noti.message, noti.params)
+        #game_objects[noti.obj_name].respond_to_notification(noti.message, noti.params)
+        if (noti.params && noti.params.is_a?(Array))
+          noti.params.each do |p|
+            self.instance_eval(p)
+          end
+        end
         @notifications.delete(noti)
       end
     end

@@ -5,11 +5,20 @@ module FarmerJim
   # set the initial state for this object. This will change as objects/dialogs/etc.. do set_state and such
   @state = {"next dialog" => "first dialog", "on examine" => "dialog"}
   
+  # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
+  def examine_from_xy
+    [self.width + 20, 20]
+  end
+  
   def dialogs
     # this method should return a hash of the form:
     # { dialog_name => {"text"=>"text of dialog", "audio"=>"name of audio file", "responses"=>[{"text" => "text of response", "audio" => "audio file for response", "actions" => ["code that gets evaluated after this response is made", "more code to execute"]}, {more responses}]} }
     # where if the responses array has only one response whose hash does not contain the key "text", it will just be one of those "there is no response, just hit enter to continue and do the actions".
     {
+      "monolog one" => {
+        "text" => "BAAAAAAAAAARGH",
+        "audio" => "audio file"
+      },
       "first dialog" => {
         "text"      => "Hello main charactor. What are you doing?",
         "audio"     => "audio file",
@@ -49,10 +58,10 @@ module FarmerJim
     }
   end
   
-  def on_examine()
-    # based on what the state is, (and even using the game's state for global variables and such)
-    # do whatever needs to be done on this object being examined.
-    puts "I'm Farmer Jim and I just been probed"
-  end
+  # def on_examine()
+  #   # based on what the state is, (and even using the game's state for global variables and such)
+  #   # do whatever needs to be done on this object being examined.
+  #   puts "I'm Farmer Jim and I just been probed"
+  # end
   
 end

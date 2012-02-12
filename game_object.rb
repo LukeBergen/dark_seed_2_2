@@ -166,28 +166,15 @@ class GameObject
   end
   
   def on_click(mouse_x, mouse_y)
-    on_examine()
+    game.do_player_move(self.x + examine_from_xy.first, self.y + examine_from_xy.last, ["game_objects['#{self.name}'].on_examine()"])
   end
   
   def on_examine()
-    game.do_monolog(monologs["test"])
-  end
-  
-  def monologs()
-    {
-      "test" => {
-        "text" => "This is some text{NEWLINE}NEW LINE{NEWLINE}Then WHOLE NOTHER NEW LINE{NEWLINE}Then the last one",
-        "audio" => "audio file"
-      }
-    }
+    game.do_dialog(dialogs()["monolog one"])
   end
   
   def dialogs()
     {}
-  end
-  
-  def do_dialog()
-    
   end
   
   def set_state(obj_name, state_name, state_value)
@@ -195,6 +182,7 @@ class GameObject
   end
   
   def respond_to_notification(message, params=nil)
+    puts "responding to notification: #{message}"
     if (params && params.is_a?(Array))
       params.each do |p|
         self.instance_eval(p)
