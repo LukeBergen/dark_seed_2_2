@@ -2,9 +2,6 @@
 
 module FarmerJim
   
-  # set the initial state for this object. This will change as objects/dialogs/etc.. do set_state and such
-  @state = {"next dialog" => "first dialog", "on examine" => "dialog"}
-  
   # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
   def examine_from_xy
     [self.width + 20, 20]

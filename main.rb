@@ -7,6 +7,8 @@ class GameWindow < Gosu::Window
     self.caption = "Dark Seed 2: 2"
     @game = Game.new(self)
     @dialog_font = Gosu::Font.new(self, Gosu::default_font_name, 20)
+    @mouse_img = @game.game_objects["game"].images["mouse.png"]
+    @dialog_background = @game.game_objects["game"].images["dialog_background.png"]
     @dialog_scroll_height = 0
     @currently_selected_line = -1
   end
@@ -20,15 +22,15 @@ class GameWindow < Gosu::Window
     @game.current_area.game_objects.each do |obj_name|
       @game.game_objects[obj_name].draw
     end
-    mouse_img = @game.game_objects["game"].images["mouse.png"]
-    mouse_img.draw(self.mouse_x - (mouse_img.width / 2), self.mouse_y - (mouse_img.height / 2), ZOrder::Mouse)
+    @mouse_img.draw(self.mouse_x - (@mouse_img.width / 2), self.mouse_y - (@mouse_img.height / 2), ZOrder::Mouse)
     if (@game.current_dialog_text)
       diag_x = 50
       diag_y = self.height - 120
       diag_width = 700
       diag_height = 100
       line_height = 23
-      self.draw_quad(diag_x, diag_y, 0xff000000, diag_x+diag_width, diag_y, 0xff000000, diag_x+diag_width, diag_y+diag_height, 0xff000000, diag_x, diag_y+diag_height, 0xff000000, ZOrder::UI)
+      #self.draw_quad(diag_x, diag_y, 0xff000000, diag_x+diag_width, diag_y, 0xff000000, diag_x+diag_width, diag_y+diag_height, 0xff000000, diag_x, diag_y+diag_height, 0xff000000, ZOrder::DialogBackground)
+      @dialog_background.draw(diag_x, diag_y, ZOrder::DialogBackground)
       dialog_lines = dialog_text_to_lines(@game.current_dialog_text)
       clip_to(diag_x, diag_y, diag_width, diag_height-20) do
         dialog_lines.each_with_index do |line, i|
@@ -39,7 +41,7 @@ class GameWindow < Gosu::Window
           else
             color = 0xffffff00
           end
-          @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogText, 1.0, 1.0, color)
+          @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, color)
         end
       end
       

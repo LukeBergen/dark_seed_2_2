@@ -3,7 +3,7 @@ require './notification'
 require './area'
 
 module ZOrder
-  Background, Player, Objects, Foreground, UI, DialogText, Mouse = *0..6
+  Background, Player, Objects, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Mouse = *1..8
 end
 
 class Game
@@ -104,7 +104,9 @@ class Game
   end
   
   def do_dialog(dialog)
-    @current_dialog_text = dialog["text"]
+    if (dialog && dialog["text"])
+      @current_dialog_text = dialog["text"]
+    end
   end
   
   def finish_dialog
@@ -135,6 +137,7 @@ class Game
         #game_objects[noti.obj_name].respond_to_notification(noti.message, noti.params)
         if (noti.params && noti.params.is_a?(Array))
           noti.params.each do |p|
+            puts "evaling: #{p}"
             self.instance_eval(p)
           end
         end
@@ -157,6 +160,23 @@ class Game
   
   def file_valid?(s)
     s != "." && s != ".." && s != ".DS_Store"
+  end
+  
+end
+
+class Notification
+  
+  attr_accessor :obj_name, :message, :triggered, :params
+  
+  def initialize(obj_name, message, params=nil)
+    @obj_name = obj_name
+    @message = message
+    @triggered = false
+    @params = params
+  end
+  
+  def trigger
+    @triggered = true
   end
   
 end

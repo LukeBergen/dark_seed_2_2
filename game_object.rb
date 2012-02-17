@@ -42,11 +42,19 @@ class GameObject
   end
   
   def width
-    @current_image.width if @current_image
+    if @current_image
+      @current_image.width
+    else
+      0
+    end
   end
   
   def height
-    @current_image.height if @current_image
+    if @current_image
+      @current_image.height
+    else
+      0
+    end
   end
   
   def current_image
@@ -91,17 +99,18 @@ class GameObject
   end
   
   def start_animation(ani_name)
-    puts "setting @current_animation to #{@animations[ani_name]}"
+    puts "starting animation: #{@animations[ani_name]}"
     @current_animation = @animations[ani_name]
   end
   
   def stop_animation
-    puts "about to try to stop #{@current_animation}"
+    puts "stopping animation: #{@current_animation}"
     @current_animation.reset if @current_animation
     @current_animation = nil
   end
   
   def set_image(img_name)
+    puts "setting image to: #{img_name}"
     @current_image = @images[img_name]
   end
   
@@ -170,7 +179,12 @@ class GameObject
   end
   
   def on_examine()
+    puts "in on_examine.  About to look at: #{dialogs()}"
     game.do_dialog(dialogs()["monolog one"])
+  end
+  
+  def examine_from_xy()
+    [0, 0]
   end
   
   def dialogs()
