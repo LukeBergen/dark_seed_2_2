@@ -179,7 +179,7 @@ class GameObject
   end
   
   def on_examine()
-    puts "in on_examine.  About to look at: #{dialogs()}"
+    puts "in on_examine.  About to look at: #{dialogs()['monolog one']}"
     game.do_dialog(dialogs()["monolog one"])
   end
   

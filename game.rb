@@ -1,5 +1,4 @@
 require './game_object'
-require './notification'
 require './area'
 
 module ZOrder
@@ -105,6 +104,7 @@ class Game
   
   def do_dialog(dialog)
     if (dialog && dialog["text"])
+      puts "setting @current_dialog_text to #{dialog['text']}"
       @current_dialog_text = dialog["text"]
     end
   end

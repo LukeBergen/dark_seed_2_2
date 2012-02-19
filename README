@@ -1,0 +1,22 @@
+Dark Seed 2: 2
+
+This is a spiritual sequel to the game Dark Seed 2.
+
+It follows in the footsteps of Mark Dawson, the brother of Dark Seed 2's hero Mike Dawson.
+
+The creative aspects of the game are still in the making and are currently being fleshed out in a google doc.
+
+The technical aspects of the game's implementation have been... fluid.  
+Following is a short description of where the code is at the moment as of 02/18/2012
+
+This game is using the gosu game library
+main.rb is the main entry point of the code.  The basic game loop is in the update and draw methods
+It's supposed to hold only code that relates to drawing and dealing with talking to gosu and such
+All business logic is ideally to be delegated to...
+game.rb is where a large portion of the game's logic resides.  It handles keeping track of 
+the game objects, areas, and the relationships between all the moving parts.
+game_object.rb is another big class.  It's the generic form of game_object and represents a set of
+reasonable defaults.  In theory, a game_object who has not been overridden in any way should still 
+be functional even if it is boring and semantically bizarre
+
+

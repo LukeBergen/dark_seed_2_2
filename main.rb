@@ -23,6 +23,11 @@ class GameWindow < Gosu::Window
       @game.game_objects[obj_name].draw
     end
     @mouse_img.draw(self.mouse_x - (@mouse_img.width / 2), self.mouse_y - (@mouse_img.height / 2), ZOrder::Mouse)
+    
+    # This whole thing needs to be re-thought a little.
+    # @game.current_dialog_text needs to be replaced with something like @game.current_dialog_hash
+    # and main.rb just needs to be smart about it.  This might be one place where it just doesn't make
+    # sense for game.rb to have the logic
     if (@game.current_dialog_text)
       diag_x = 50
       diag_y = self.height - 120
@@ -33,15 +38,24 @@ class GameWindow < Gosu::Window
       @dialog_background.draw(diag_x, diag_y, ZOrder::DialogBackground)
       dialog_lines = dialog_text_to_lines(@game.current_dialog_text)
       clip_to(diag_x, diag_y, diag_width, diag_height-20) do
-        dialog_lines.each_with_index do |line, i|
+        dialog_lines.first.each_with_index do |line, i|
+          @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, Gosu::Color::WHITE)
+        end
+        c = dialog_lines.first.count + 1
+        self.draw_quad(diag_x + 10, diag_y + (line_height * c) - 4 - @dialog_scroll_height, Gosu::Color::GREEN,
+                       diag_x + diag_width - 10, diag_y + (line_height * c) - 4 - @dialog_scroll_height, Gosu::Color::WHITE,
+                       diag_x + 10, diag_y + (line_height * c) + 4 - @dialog_scroll_height, Gosu::Color::GREEN,
+                       diag_x + diag_width - 10, diag_y + (line_height * c) + 4 - @dialog_scroll_height, Gosu::Color::WHITE,
+                       ZOrder::DialogEntities)
+        dialog_lines.last.each_with_index do |line, i|
           if (self.mouse_x > diag_x + 20 && self.mouse_x < diag_x + diag_width - 20 &&
-              self.mouse_y > diag_y + 10 + (i*line_height) - @dialog_scroll_height && self.mouse_y < diag_y + 10 + ((i+1)*line_height) - @dialog_scroll_height )
+              self.mouse_y > diag_y + 10 + ((i+c)*line_height) - @dialog_scroll_height && self.mouse_y < diag_y + 10 + ((i+c+1)*line_height) - @dialog_scroll_height )
             color = 0xffff00ff
             @currently_selected_line = i
           else
             color = 0xffffff00
           end
-          @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, color)
+          @dialog_font.draw(line, 100, self.height - 110 + ((i+c) * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, color)
         end
       end
       
@@ -49,7 +63,8 @@ class GameWindow < Gosu::Window
   end
   
   def dialog_text_to_lines(full_text)
-    full_text.split("{NEWLINE}")
+    x = full_text.split("{NEWLINE}")
+    [x[0..1], x[2..3]]
   end
   
   def button_down(id)

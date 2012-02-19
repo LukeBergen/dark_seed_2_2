@@ -13,7 +13,7 @@ module FarmerJim
     # where if the responses array has only one response whose hash does not contain the key "text", it will just be one of those "there is no response, just hit enter to continue and do the actions".
     {
       "monolog one" => {
-        "text" => "BAAAAAAAAAARGH",
+        "text" => "Line 1{NEWLINE}Line 2{NEWLINE}Line 3{NEWLINE}Line 4",
         "audio" => "audio file"
       },
       "first dialog" => {
