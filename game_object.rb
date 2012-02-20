@@ -179,8 +179,7 @@ class GameObject
   end
   
   def on_examine()
-    puts "in on_examine.  About to look at: #{dialogs()['monolog one']}"
-    game.do_dialog(dialogs()["monolog one"])
+    game.do_dialog(dialogs()[get_state("next dialog")])
   end
   
   def examine_from_xy()
@@ -189,6 +188,14 @@ class GameObject
   
   def dialogs()
     {}
+  end
+  
+  def get_state(state_name_or_obj_name, state_name=nil)
+    if state_name
+      @game.get_state(state_name_or_obj_name, state_name)
+    else
+      @game.get_state(self.name, state_name_or_obj_name)
+    end
   end
   
   def set_state(obj_name, state_name, state_value)

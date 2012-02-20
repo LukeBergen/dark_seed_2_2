@@ -15,7 +15,8 @@ class Game
     @notifications = []
     @inventory = []
     @frames = 0
-    @state = load_state()
+    @state = nil
+    load_state()
   end
   
   def tick
@@ -102,19 +103,27 @@ class Game
     @game_objects["mark"].move(x, y, noti)
   end
   
-  def do_dialog(dialog)
-    if (dialog && dialog["text"])
-      puts "setting @current_dialog_text to #{dialog['text']}"
-      @current_dialog_text = dialog["text"]
+  def do_dialog(dialog_hash)
+    if (dialog_hash && dialog_hash.class == Hash)
+      @current_dialog_hash = dialog_hash
+    else
+      @current_dialog_hash = @game_objects[dialog_hash].dialogs()[get_state(dialog_hash, "next dialog")]
     end
   end
   
   def finish_dialog
-    @current_dialog_text = nil
+    @current_dialog_hash = nil
   end
   
-  def current_dialog_text
-    @current_dialog_text
+  def current_dialog_hash
+    @current_dialog_hash
+  end
+  
+  def do_actions(actions)
+    actions.each do |action|
+      puts "doing action: #{action}"
+      self.instance_eval(action)
+    end
   end
   
   def register_notification(obj_name, message, params=nil)
@@ -144,6 +153,17 @@ class Game
         @notifications.delete(noti)
       end
     end
+  end
+  
+  def set_state(obj_name, state_name, state_val)
+    puts "trying to set state #{obj_name}:#{state_name} = #{state_val}"
+    @state[obj_name] ||= {}
+    @state[obj_name][state_name] = state_val
+  end
+  
+  def get_state(obj_name, state_name)
+    puts "trying to get state #{obj_name}:#{state_name}"
+    @state[obj_name][state_name]
   end
   
   def load_game_objects()

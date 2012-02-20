@@ -1,3 +1,4 @@
+require 'ruby-debug'
 require 'gosu'
 require './game'
 
@@ -28,7 +29,7 @@ class GameWindow < Gosu::Window
     # @game.current_dialog_text needs to be replaced with something like @game.current_dialog_hash
     # and main.rb just needs to be smart about it.  This might be one place where it just doesn't make
     # sense for game.rb to have the logic
-    if (@game.current_dialog_text)
+    if (@game.current_dialog_hash)
       diag_x = 50
       diag_y = self.height - 120
       diag_width = 700
@@ -36,7 +37,7 @@ class GameWindow < Gosu::Window
       line_height = 23
       #self.draw_quad(diag_x, diag_y, 0xff000000, diag_x+diag_width, diag_y, 0xff000000, diag_x+diag_width, diag_y+diag_height, 0xff000000, diag_x, diag_y+diag_height, 0xff000000, ZOrder::DialogBackground)
       @dialog_background.draw(diag_x, diag_y, ZOrder::DialogBackground)
-      dialog_lines = dialog_text_to_lines(@game.current_dialog_text)
+      dialog_lines = dialog_text_to_lines(@game.current_dialog_hash)
       clip_to(diag_x, diag_y, diag_width, diag_height-20) do
         dialog_lines.first.each_with_index do |line, i|
           @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, Gosu::Color::WHITE)
@@ -62,9 +63,8 @@ class GameWindow < Gosu::Window
     end
   end
   
-  def dialog_text_to_lines(full_text)
-    x = full_text.split("{NEWLINE}")
-    [x[0..1], x[2..3]]
+  def dialog_text_to_lines(dialog_hash)
+    [dialog_hash["text"].split("{NEWLINE}")] + [dialog_hash["responses"].collect {|h| h["text"]}]
   end
   
   def button_down(id)
@@ -72,9 +72,13 @@ class GameWindow < Gosu::Window
       close
     elsif id == Gosu::MsLeft
       puts "left click at #{self.mouse_x}, #{self.mouse_y}"
-      if (@game.current_dialog_text)
+      if (@game.current_dialog_hash)
         if (@currently_selected_line >= 0)
-          puts "line clicked: #{@currently_selected_line}"
+          actions = @game.current_dialog_hash["responses"][@currently_selected_line]["actions"]
+          @game.finish_dialog
+          @dialog_scroll_height = 0
+          @currently_selected_line = -1
+          @game.do_actions(actions)
         end
       else
         @game.left_click(self.mouse_x, self.mouse_y)
@@ -85,11 +89,11 @@ class GameWindow < Gosu::Window
       @game.finish_dialog
       @dialog_scroll_height = 0
     elsif id == Gosu::KbUp || id == Gosu::MsWheelDown
-      if (@game.current_dialog_text)
+      if (@game.current_dialog_hash)
         @dialog_scroll_height += 1
       end
     elsif id == Gosu::KbDown || id == Gosu::MsWheelUp
-      if (@game.current_dialog_text)
+      if (@game.current_dialog_hash)
         @dialog_scroll_height -= 1
       end
     else

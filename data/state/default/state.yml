@@ -4,7 +4,6 @@ Current Area:
 Game State:
   FarmerJim:
     next dialog: first dialog
-    on examine: dialog
     current image: idle.png
     current area: dev_room
     x pos: 20
