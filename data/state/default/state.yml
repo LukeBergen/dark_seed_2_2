@@ -8,8 +8,10 @@ Game State:
     current area: dev_room
     x pos: 20
     y pos: 20
-  mark:
+    z pos: 2
+  Mark:
     current image: idle.png
     current area: dev_room
     x pos: 300
     y pos: 300
+    z pos: 1

@@ -8,18 +8,36 @@ class GameWindow < Gosu::Window
     self.caption = "Dark Seed 2: 2"
     @game = Game.new(self)
     @dialog_font = Gosu::Font.new(self, Gosu::default_font_name, 20)
-    @mouse_img = @game.game_objects["game"].images["mouse.png"]
-    @dialog_background = @game.game_objects["game"].images["dialog_background.png"]
+    @mouse_img = @game.game_objects["Game"].images["mouse.png"]
+    @dialog_background = @game.game_objects["Game"].images["dialog_background.png"]
     @dialog_scroll_height = 0
     @currently_selected_line = -1
   end
   
   def update
-    @game.tick
+    if self.text_input
+      @last ||= ""
+      @last = self.text_input.text
+      if self.text_input.text[-1] == Gosu::KbEnter
+        @game.instance_eval(self.text_input.text)
+        self.text_input = nil
+      end
+    else
+      @game.tick
+    end
   end
   
   def draw
+    
     draw_quad(0, 0, Gosu::Color::WHITE, self.width, 0, Gosu::Color::WHITE, 0, self.height, Gosu::Color::WHITE, self.width, self.height, Gosu::Color::WHITE)
+    
+    if (self.text_input)
+      #@dialog_font.draw(self.text_input, 500, 200, ZOrder::SuperTop, 1.0, 1.0, 0x000000ff)
+      self.draw_quad(480, 90, Gosu::Color::BLACK, 700, 90, Gosu::Color::BLACK,
+                     480, 130, Gosu::Color::BLACK, 700, 130, Gosu::Color::BLACK, ZOrder::Background)
+      @dialog_font.draw(self.text_input.text, 500, 100, ZOrder::DialogEntities, 1.0, 1.0, 0xffffffff)
+    end
+    
     @game.current_area.game_objects.each do |obj_name|
       @game.game_objects[obj_name].draw
     end
@@ -29,6 +47,13 @@ class GameWindow < Gosu::Window
     # @game.current_dialog_text needs to be replaced with something like @game.current_dialog_hash
     # and main.rb just needs to be smart about it.  This might be one place where it just doesn't make
     # sense for game.rb to have the logic
+    if (@game.current_menu)
+      menu_obj = @game.game_objects[@game.current_menu]
+      display_objs = [menu_obj] + menu_obj.menu_objects.collect {|obj_name| @game.game_objects[obj_name]}
+      display_objs.each do |obj|
+        obj.draw
+      end
+    end
     if (@game.current_dialog_hash)
       diag_x = 50
       diag_y = self.height - 120
@@ -86,8 +111,17 @@ class GameWindow < Gosu::Window
     elsif id == Gosu::MsRight
       puts "#{self.mouse_x}, #{self.mouse_y}"
     elsif id == Gosu::KbReturn
-      @game.finish_dialog
-      @dialog_scroll_height = 0
+      if self.text_input
+        begin
+          @game.instance_eval(self.text_input.text)
+        rescue
+          puts "didn't understand how to do that: #{self.text_input.text}"
+        end
+        self.text_input = nil
+      else
+        @game.finish_dialog
+        @dialog_scroll_height = 0
+      end
     elsif id == Gosu::KbUp || id == Gosu::MsWheelDown
       if (@game.current_dialog_hash)
         @dialog_scroll_height += 1
@@ -96,8 +130,10 @@ class GameWindow < Gosu::Window
       if (@game.current_dialog_hash)
         @dialog_scroll_height -= 1
       end
+    elsif id == 50     # 50 is the ` key
+      self.text_input = Gosu::TextInput.new
     else
-      puts "bah"
+      puts "button pressed: #{id}"
     end
   end
   

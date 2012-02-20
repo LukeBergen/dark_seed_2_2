@@ -4,12 +4,12 @@ require './animation'
 
 class GameObject
   
-  attr_accessor :x, :y, :name, :state, :game
+  attr_accessor :x, :y, :z, :name, :state, :game
   
-  def initialize(game_obj, name)
+  def initialize(game_obj, name, dirname=nil)
     @game = game_obj
     @name = name
-    @x = @y = 0.0
+    @x = @y = @z = 0.0
     @dx = @dy = @new_x = @new_y = nil
     @speed = 5.0
     @showing = @moving = false
@@ -18,7 +18,7 @@ class GameObject
     @current_animation = nil
     @notify_when_done = nil
     @current_image = nil
-    reload()
+    reload(dirname)
   end
   
   def show?
@@ -62,7 +62,7 @@ class GameObject
   end
   
   def draw
-    @current_image.draw(@x, @y, 0) if @current_image
+    @current_image.draw(@x, @y, @z) if @current_image
   end
   
   def move(new_x, new_y, notification=nil)
@@ -118,8 +118,13 @@ class GameObject
     @images
   end
   
-  def load_media
-    dirname = "./data/game_objects/#{@name}"
+  def reload(dirname=nil)
+    load_media(dirname)
+    load_logic(dirname)
+  end
+  
+  def load_media(dirname=nil)
+    dirname = "./data/game_objects/#{@name}" unless dirname
     
     if (File.exists?("#{dirname}/animations"))
       Dir.foreach("#{dirname}/animations") do |ani_dir|
@@ -159,19 +164,19 @@ class GameObject
     
   end
   
-  def reload()
-    load_media()
-    load_logic()
-  end
-  
-  def load_logic()
+  def load_logic(dirname=nil)
     # first require anything under data/game_objects/#{@name}/logic.rb
     # then require everything under data/state/current/logics/#{@name}
     begin
-      load("./data/game_objects/#{@name}/logic.rb")
+      dirname ||= @name
+      load("./data/game_objects/#{dirname}/logic.rb")
       self.extend(Kernel.const_get(@name))
     rescue LoadError
     end
+  end
+  
+  def init
+    
   end
   
   def on_click(mouse_x, mouse_y)

@@ -2,16 +2,20 @@ require './game_object'
 require './area'
 
 module ZOrder
-  Background, Player, Objects, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Mouse = *1..8
+  Background, Player, Objects, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
 end
 
 class Game
+  
+  attr_accessor :current_menu
   
   def initialize(parent_win)
     @game_window = parent_win
     @game_objects = load_game_objects()
     @areas = load_areas()
     @current_area = nil
+    @current_dialog_hash = nil
+    @current_menu = nil
     @notifications = []
     @inventory = []
     @frames = 0
@@ -98,9 +102,9 @@ class Game
         @notifications.delete(noti)
       end
     end
-    @game_objects["mark"].start_animation("move")
-    noti = register_notification("mark", "move complete", ["game_objects['mark'].stop_animation", "game_objects['mark'].set_image('idle.png')"] + (after_move || []))
-    @game_objects["mark"].move(x, y, noti)
+    @game_objects["Mark"].start_animation("move")
+    noti = register_notification("Mark", "move complete", ["game_objects['Mark'].stop_animation", "game_objects['Mark'].set_image('idle.png')"] + (after_move || []))
+    @game_objects["Mark"].move(x, y, noti)
   end
   
   def do_dialog(dialog_hash)
@@ -155,6 +159,14 @@ class Game
     end
   end
   
+  def save_game(save_name="save1")
+    puts "saving game: #{save_name}"
+  end
+  
+  def load_game(save_name="save1")
+    puts "loading game: #{save_name}"
+  end
+  
   def set_state(obj_name, state_name, state_val)
     puts "trying to set state #{obj_name}:#{state_name} = #{state_val}"
     @state[obj_name] ||= {}
@@ -173,6 +185,17 @@ class Game
       if (file_valid?(obj_name))
         puts "loading game object for #{obj_name}"
         objs[obj_name] = GameObject.new(self, obj_name)
+        objs[obj_name].init
+        
+        # at this point there's only one level of recurrsion so sub_sub_objects aren't possible
+        # if that ends up being a need I'll generify this to take arbitrarily deep sub_object loading
+        Dir.entries("#{objs_dir}/#{obj_name}").each do |sub_obj_name|
+          if (sub_obj_name[0] == "_")
+            puts "loading sub object #{sub_obj_name}"
+            objs["#{obj_name}_#{sub_obj_name[1..-1]}"] = GameObject.new(self, "#{obj_name}_#{sub_obj_name[1..-1]}")
+            objs["#{obj_name}_#{sub_obj_name[1..-1]}"].init
+          end
+        end
       end
     end
     objs
