@@ -38,6 +38,7 @@ class GameWindow < Gosu::Window
       @dialog_font.draw(self.text_input.text, 500, 100, ZOrder::DialogEntities, 1.0, 1.0, 0xffffffff)
     end
     
+    @game.current_area.draw
     @game.current_area.game_objects.each do |obj_name|
       @game.game_objects[obj_name].draw
     end

@@ -32,7 +32,7 @@ class Game
   end
   
   def load_areas
-    {"dev_room" => Area.new("dev_room")}
+    {"dev_room" => Area.new(self, "dev_room")}
   end
   
   def current_area

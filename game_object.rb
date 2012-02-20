@@ -9,7 +9,8 @@ class GameObject
   def initialize(game_obj, name, dirname=nil)
     @game = game_obj
     @name = name
-    @x = @y = @z = 0.0
+    @x = @y = 0.0
+    @z = ZOrder::Objects
     @dx = @dy = @new_x = @new_y = nil
     @speed = 5.0
     @showing = @moving = false
