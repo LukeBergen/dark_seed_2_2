@@ -1,17 +1,23 @@
 ---
 Current Area:
-  dev_room
+  DevRoom
 Game State:
   FarmerJim:
     next dialog: first dialog
     current image: idle.png
-    current area: dev_room
+    current area: DevRoom
     x pos: 20
     y pos: 20
     z pos: 2
   Mark:
     current image: idle.png
-    current area: dev_room
+    current area: DevRoom
     x pos: 300
     y pos: 300
-    z pos: 1
+    z pos: 3
+  Portal:
+    current image: default.png
+    current area: DevRoom
+    x pos: 400
+    y pos: 0
+    z pos: 2

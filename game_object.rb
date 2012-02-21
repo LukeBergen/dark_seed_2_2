@@ -42,6 +42,14 @@ class GameObject
     [@x, @y]
   end
   
+  def z_pos
+    @z
+  end
+  
+  def z_pos=(z)
+    @z = z
+  end
+  
   def width
     if @current_image
       @current_image.width
@@ -174,6 +182,10 @@ class GameObject
       self.extend(Kernel.const_get(@name))
     rescue LoadError
     end
+  end
+  
+  def move_to_area(area_name)
+    game.move_obj_to_area(self.name, area_name)
   end
   
   def init

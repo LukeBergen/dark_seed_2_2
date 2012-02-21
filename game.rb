@@ -2,7 +2,7 @@ require './game_object'
 require './area'
 
 module ZOrder
-  Background, Player, Objects, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
+  Background, Objects, Player, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
 end
 
 class Game
@@ -32,7 +32,7 @@ class Game
   end
   
   def load_areas
-    {"dev_room" => Area.new(self, "dev_room")}
+    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchool" => Area.new(self, "HighSchool")}
   end
   
   def current_area
@@ -44,33 +44,29 @@ class Game
   end
   
   def load_state(state_name="default")
-    if (state_name)
-      # TODO if state is passed in, load from a state file or something
-      state = YAML::load(File.read("./data/state/#{state_name}/state.yml"))
-      @current_area = state["Current Area"]
-      @state = state["Game State"]
-      @state.each do |obj_name, variables|
-        if (variables.keys.include?("current image"))
-          @game_objects[obj_name].set_image(variables["current image"])
-        end
-        if (variables.keys.include?("current area"))
-          if @areas.keys.include?(variables["current area"])
-            @areas[variables["current area"]].game_objects << obj_name
-          end
-        end
-        if (variables.keys.include?("x pos") && variables.keys.include?("y pos"))
-          @game_objects[obj_name].position = [variables["x pos"], variables["y pos"]]
+    # TODO if state is passed in, load from a state file or something
+    state = YAML::load(File.read("./data/state/#{state_name}/state.yml"))
+    @current_area = state["Current Area"]
+    @state = state["Game State"]
+    @state.each do |obj_name, variables|
+      if (variables.keys.include?("current image"))
+        @game_objects[obj_name].set_image(variables["current image"])
+      end
+      if (variables.keys.include?("current area"))
+        if @areas.keys.include?(variables["current area"])
+          @areas[variables["current area"]].game_objects << obj_name
         end
       end
+      if (variables.keys.include?("x pos") && variables.keys.include?("y pos"))
+        @game_objects[obj_name].position = [variables["x pos"], variables["y pos"]]
+      end
       
-      puts "EVERYTHING LOADED."
-    else
-      @current_area = "dev_room"
-      @game_objects["mark"].show
-      @game_objects["mark"].position = [300, 300]
-      @game_objects["mark"].set_image("idle.png")
-      current_area.game_objects << "mark"
+      if (variables.keys.include?("z pos"))
+        @game_objects[obj_name].z_pos = variables["z pos"]
+      end
     end
+    
+    puts "EVERYTHING LOADED."
   end
   
   def game_objects
@@ -165,6 +161,18 @@ class Game
   
   def load_game(save_name="save1")
     puts "loading game: #{save_name}"
+  end
+  
+  def move_to_area(obj_name, area_name)
+    # BOOKMARK
+    old_area = @current_area
+    @current_area = area_name
+    @areas[old_area].game_objects.delete(obj_name)
+    @areas[@current_area].game_objects << obj_name
+  end
+  
+  def change_area(area_name)
+    @current_area = area_name
   end
   
   def set_state(obj_name, state_name, state_val)
