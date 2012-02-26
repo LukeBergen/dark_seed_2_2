@@ -8,19 +8,19 @@ end
 class Game
   
   attr_accessor :current_menu
+  attr_reader :state
   
   def initialize(parent_win)
     @game_window = parent_win
-    @game_objects = load_game_objects()
     @areas = load_areas()
-    @current_area = nil
+    @state = nil
+    load_state()
+    @game_objects = load_game_objects()
     @current_dialog_hash = nil
     @current_menu = nil
     @notifications = []
     @inventory = []
     @frames = 0
-    @state = nil
-    load_state()
   end
   
   def tick
@@ -32,11 +32,15 @@ class Game
   end
   
   def load_areas
-    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchool" => Area.new(self, "HighSchool")}
+    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchoolGym" => Area.new(self, "HighSchoolGym"), "HighSchoolHallway" => Area.new(self, "HighSchoolHallway")}
   end
   
   def current_area
-    @areas[@current_area]
+    @areas[get_state("Game", "current_area")]
+  end
+  
+  def current_area=(area_name)
+    set_state("Game", "current_area", area_name)
   end
   
   def window
@@ -46,26 +50,26 @@ class Game
   def load_state(state_name="default")
     # TODO if state is passed in, load from a state file or something
     state = YAML::load(File.read("./data/state/#{state_name}/state.yml"))
-    @current_area = state["Current Area"]
     @state = state["Game State"]
-    @state.each do |obj_name, variables|
-      if (variables.keys.include?("current image"))
-        @game_objects[obj_name].set_image(variables["current image"])
-      end
-      if (variables.keys.include?("current area"))
-        if @areas.keys.include?(variables["current area"])
-          @areas[variables["current area"]].game_objects << obj_name
-        end
-      end
-      if (variables.keys.include?("x pos") && variables.keys.include?("y pos"))
-        @game_objects[obj_name].position = [variables["x pos"], variables["y pos"]]
-      end
-      
-      if (variables.keys.include?("z pos"))
-        @game_objects[obj_name].z_pos = variables["z pos"]
-      end
-    end
-    
+        # 
+        # @state.each do |obj_name, variables|
+        #   if (variables.keys.include?("current image"))
+        #     @game_objects[obj_name].set_image(variables["current image"])
+        #   end
+        #   if (variables.keys.include?("current area"))
+        #     if @areas.keys.include?(variables["current area"])
+        #       @areas[variables["current area"]].game_objects << obj_name
+        #     end
+        #   end
+        #   if (variables.keys.include?("x pos") && variables.keys.include?("y pos"))
+        #     @game_objects[obj_name].position = [variables["x pos"], variables["y pos"]]
+        #   end
+        #   
+        #   if (variables.keys.include?("z pos"))
+        #     @game_objects[obj_name].z_pos = variables["z pos"]
+        #   end
+        # end
+        
     puts "EVERYTHING LOADED."
   end
   
@@ -79,7 +83,7 @@ class Game
     current_area.game_objects.each do |obj_name|
       next if (obj_name == "game")
       obj = @game_objects[obj_name]
-      if (x >= obj.x && y >= obj.y && x <= (obj.x + obj.width) && y <= (obj.y + obj.height))
+      if (x >= (obj.x || 0.0) && y >= (obj.y || 0.0) && x <= ((obj.x || 0.0) + obj.width) && y <= ((obj.y || 0.0) + obj.height))
         clicked_obj = obj
       end
     end
@@ -94,13 +98,17 @@ class Game
   
   def do_player_move(x, y, after_move=nil)
     @notifications.each do |noti|
-      if (noti.obj_name == "mark" && noti.message = "move complete")
+      if (noti.obj_name == "Mark" && noti.message = "move complete")
         @notifications.delete(noti)
       end
     end
     @game_objects["Mark"].start_animation("move")
     noti = register_notification("Mark", "move complete", ["game_objects['Mark'].stop_animation", "game_objects['Mark'].set_image('idle.png')"] + (after_move || []))
     @game_objects["Mark"].move(x, y, noti)
+  end
+  
+  def player
+    game_objects["Mark"]
   end
   
   def do_dialog(dialog_hash)
@@ -163,27 +171,32 @@ class Game
     puts "loading game: #{save_name}"
   end
   
-  def move_to_area(obj_name, area_name)
+  def move_object(obj_name, area_name, x=nil, y=nil)
     # BOOKMARK
-    old_area = @current_area
-    @current_area = area_name
-    @areas[old_area].game_objects.delete(obj_name)
-    @areas[@current_area].game_objects << obj_name
+    old_area = @areas.values.select {|a| a.game_objects.include?(obj_name)}.first
+    old_area.game_objects.delete(obj_name) if old_area
+    @areas[area_name].game_objects << obj_name
+    if (x && y)
+      game_objects[obj_name].x = x
+      game_objects[obj_name].y = y
+    end
   end
   
   def change_area(area_name)
-    @current_area = area_name
+    self.current_area = area_name
+  end
+  
+  def enter_coordinates(from_area, to_area)
+    to_area.enter_coordinates[from_area]
   end
   
   def set_state(obj_name, state_name, state_val)
-    puts "trying to set state #{obj_name}:#{state_name} = #{state_val}"
     @state[obj_name] ||= {}
     @state[obj_name][state_name] = state_val
   end
   
   def get_state(obj_name, state_name)
-    puts "trying to get state #{obj_name}:#{state_name}"
-    @state[obj_name][state_name]
+    @state[obj_name] ? @state[obj_name][state_name] : nil
   end
   
   def load_game_objects()
@@ -195,15 +208,19 @@ class Game
         objs[obj_name] = GameObject.new(self, obj_name)
         objs[obj_name].init
         
+        @areas[objs[obj_name].get_state("current_area")].game_objects << obj_name if objs[obj_name].get_state("current_area")
+        
         # at this point there's only one level of recurrsion so sub_sub_objects aren't possible
         # if that ends up being a need I'll generify this to take arbitrarily deep sub_object loading
-        Dir.entries("#{objs_dir}/#{obj_name}").each do |sub_obj_name|
-          if (sub_obj_name[0] == "_")
-            puts "loading sub object #{sub_obj_name}"
-            objs["#{obj_name}_#{sub_obj_name[1..-1]}"] = GameObject.new(self, "#{obj_name}_#{sub_obj_name[1..-1]}")
-            objs["#{obj_name}_#{sub_obj_name[1..-1]}"].init
-          end
-        end
+        
+        # nevermind, we'll finish implimenting this later
+        # Dir.entries("#{objs_dir}/#{obj_name}").each do |sub_obj_name|
+        #   if (sub_obj_name[0] == "_")
+        #     puts "loading sub object #{sub_obj_name}"
+        #     objs["#{obj_name}_#{sub_obj_name[1..-1]}"] = GameObject.new(self, "#{obj_name}_#{sub_obj_name[1..-1]}")
+        #     objs["#{obj_name}_#{sub_obj_name[1..-1]}"].init
+        #   end
+        # end
       end
     end
     objs

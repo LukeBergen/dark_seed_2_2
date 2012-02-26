@@ -26,4 +26,8 @@ class Animation
     end
     return r
   end
+  
+  def image
+    @images[@counter]
+  end
 end

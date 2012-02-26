@@ -1,23 +1,26 @@
 ---
-Current Area:
-  DevRoom
 Game State:
+  Game:
+    current_area: DevRoom
   FarmerJim:
-    next dialog: first dialog
-    current image: idle.png
-    current area: DevRoom
-    x pos: 20
-    y pos: 20
-    z pos: 2
+    next_dialog: first dialog
+    current_image: idle.png
+    current_area: DevRoom
+    x: 20
+    y: 20
+    z: 2
   Mark:
-    current image: idle.png
-    current area: DevRoom
-    x pos: 300
-    y pos: 300
-    z pos: 3
-  Portal:
-    current image: default.png
-    current area: DevRoom
-    x pos: 400
-    y pos: 0
-    z pos: 2
+    current_image: idle.png
+    current_area: DevRoom
+    x: 300
+    y: 300
+    z: 3
+  DevRoomToHighSchoolHallway:
+    current_image: default.png
+    current_area: DevRoom
+    x: 400
+    y: 0
+    z: 2
+    warp_to_area: HighSchoolHallway
+    warp_to_x: 400
+    warp_to_y: 400

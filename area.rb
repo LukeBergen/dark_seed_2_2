@@ -5,6 +5,7 @@ class Area
   attr_accessor :name, :game_objects
   
   def initialize(game, name)
+    @game = game
     @name = name
     @game_objects = []
     @background_image = Gosu::Image.new(game.window, "./data/areas/#{name}/background.png", false)
