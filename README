@@ -19,4 +19,13 @@ game_object.rb is another big class.  It's the generic form of game_object and r
 reasonable defaults.  In theory, a game_object who has not been overridden in any way should still 
 be functional even if it is boring and semantically bizarre
 
-
+The game's state is basically defined in 2 places.  
+data/game_objects/<object_name>/logic.rb
+  This is where the default behavior for a given object can be overridden
+  Handy things to override are def on_click(x,y), def on_examine(), def dialogs(), etc...
+  This file is for constant logical behavior.
+data/state/default.yml
+  This is essentially the "starting" save game.  All volatile data is saved here (object positions, locations, etc...)
+  There is a "special" object defined here called "Game" which is used for game specific state
+data/areas/<area_name>/data.yml
+  This is a yaml file with some area configuration (currently nothing is here)
