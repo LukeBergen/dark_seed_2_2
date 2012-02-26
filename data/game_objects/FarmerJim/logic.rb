@@ -23,35 +23,35 @@ module FarmerJim
           {
             "text"    => "Investigating my brothers death",
             "audio"   => "audio file",
-            "actions" => ["set_state('#{self.name}', 'next dialog', 'why investigating')", "do_dialog('#{name}')"]
+            "actions" => ["set_state('#{self.name}', 'next_dialog', 'why investigating')", "do_dialog('#{name}')"]
           },
           {
             "text"    => "Just visiting the ol' town",
             "audio"   => "audio file",
-            #"actions" => ["set_state('#{self.name}', 'next dialog', 'why investigating')", "do_dialog('#{name}')"]
-            "actions" => ["set_state('#{self.name}', 'next dialog', 'thats nice')", "do_dialog('#{name}')"]
+            #"actions" => ["set_state('#{self.name}', 'next_dialog', 'why investigating')", "do_dialog('#{name}')"]
+            "actions" => ["set_state('#{self.name}', 'next_dialog', 'thats nice')", "do_dialog('#{name}')"]
           }
         ]
       },
       "why investigating" => {
         "text"      => "There's nothing here to investigate! Go away now!",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('#{self.name}', 'next dialog', 'I told you')"]}]
+        "responses" => [{"actions" => ["set_state('#{self.name}', 'next_dialog', 'I told you')"]}]
       },
       "I told you" => {
         "text"      => "I told you there's nothing to investigate, now go away",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('#{self.name}', 'next dialog', 'I told you')"]}]
+        "responses" => [{"actions" => ["set_state('#{self.name}', 'next_dialog', 'I told you')"]}]
       },
       "thats nice" => {
         "text"  => "Well that's nice. Maybe we'll see each other around again soon.{NEWLINE}I have to go now.  Bye",
         "audio" => "audio file",
-        "responses" => [{"text"=>"Ok, nice seeing you again.", "audio" => "audio file", "actions" => ["set_state('#{self.name}', 'next dialog', 'have to go')"]}]
+        "responses" => [{"text"=>"Ok, nice seeing you again.", "audio" => "audio file", "actions" => ["set_state('#{self.name}', 'next_dialog', 'have to go')"]}]
       },
       "have to go" => {
         "text"      => "Like I said, I have to be going.  Bye now",
         "audio"     => "audio file",
-        "responses" => [{"actions" => ["set_state('#{self.name}', 'next dialog', 'have to go')"]}]
+        "responses" => [{"actions" => ["set_state('#{self.name}', 'next_dialog', 'have to go')"]}]
       }
     }
   end

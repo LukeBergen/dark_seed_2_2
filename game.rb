@@ -115,7 +115,7 @@ class Game
     if (dialog_hash && dialog_hash.class == Hash)
       @current_dialog_hash = dialog_hash
     else
-      @current_dialog_hash = @game_objects[dialog_hash].dialogs()[get_state(dialog_hash, "next dialog")]
+      @current_dialog_hash = @game_objects[dialog_hash].dialogs()[get_state(dialog_hash, "next_dialog")]
     end
   end
   
