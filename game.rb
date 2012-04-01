@@ -40,7 +40,6 @@ class Game
   end
   
   def current_area=(area_name)
-    debugger
     set_state("Game", "current_area", area_name)
   end
   
@@ -124,7 +123,15 @@ class Game
     game_objects.values.each do |obj|
       obj.stop_animation
     end
+    @last_area = get_state("Game", "current_area")
     change_area("Inventory")
+  end
+  
+  def leave_inventory()
+    game_objects.values.each do |obj|
+      obj.stop_animation
+    end
+    change_area(@last_area)
   end
   
   def finish_dialog

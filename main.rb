@@ -116,8 +116,12 @@ class GameWindow < Gosu::Window
     elsif id == Gosu::MsRight
       puts "#{self.mouse_x}, #{self.mouse_y}"
     elsif id == Gosu::KbI
-      puts "showing inventory"
-      @game.show_inventory
+      puts "toggling inventory"
+      if (@game.current_area.name == "Inventory")
+        @game.leave_inventory
+      else
+        @game.show_inventory
+      end
     elsif id == Gosu::KbReturn
       if self.text_input
         begin
