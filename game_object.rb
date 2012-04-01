@@ -208,8 +208,13 @@ class GameObject
     game.enter_coordinates(from_area, to_area)
   end
   
-  def warp
-    
+  def animate(ani_name, after=[])
+    # TODO. objects need to be able to do animations and then do actions on animation complete
+  end
+  
+  def to_inventory()
+    @areas[self.current_area].game_objects.delete(self.name)
+    self.current_area = "Inventory"
   end
   
   def examine_from_xy()

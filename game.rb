@@ -32,7 +32,7 @@ class Game
   end
   
   def load_areas
-    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchoolGym" => Area.new(self, "HighSchoolGym"), "HighSchoolHallway" => Area.new(self, "HighSchoolHallway")}
+    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchoolGym" => Area.new(self, "HighSchoolGym"), "HighSchoolHallway" => Area.new(self, "HighSchoolHallway"), "Inventory" => Area.new(self, "Inventory")}
   end
   
   def current_area
@@ -40,6 +40,7 @@ class Game
   end
   
   def current_area=(area_name)
+    debugger
     set_state("Game", "current_area", area_name)
   end
   
@@ -117,6 +118,13 @@ class Game
     else
       @current_dialog_hash = @game_objects[dialog_hash].dialogs()[get_state(dialog_hash, "next_dialog")]
     end
+  end
+  
+  def show_inventory()
+    game_objects.values.each do |obj|
+      obj.stop_animation
+    end
+    change_area("Inventory")
   end
   
   def finish_dialog

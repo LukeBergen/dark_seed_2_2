@@ -24,3 +24,16 @@ Game State:
     warp_to_area: HighSchoolHallway
     warp_to_x: 400
     warp_to_y: 400
+  HighSchoolHallwayToHighSchoolGym:
+    current_image: default.png
+    current_area: HighSchoolHallway
+    x: 400
+    y: 0
+    z: 2
+    warp_to_area: HighSchoolGym
+    warp_to_x: 100
+    warp_to_y: 200
+  Key:
+    current_image: default.png
+    inventory_image: inventory.png
+    current_area: HighSchoolHallway

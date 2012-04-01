@@ -19,7 +19,7 @@ game_object.rb is another big class.  It's the generic form of game_object and r
 reasonable defaults.  In theory, a game_object who has not been overridden in any way should still 
 be functional even if it is boring and semantically bizarre
 
-The game's state is basically defined in 2 places.  
+The game's state is basically defined in 3 places.  
 data/game_objects/<object_name>/logic.rb
   This is where the default behavior for a given object can be overridden
   Handy things to override are def on_click(x,y), def on_examine(), def dialogs(), etc...

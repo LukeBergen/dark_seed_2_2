@@ -89,6 +89,10 @@ class GameWindow < Gosu::Window
     end
   end
   
+  def debugger
+    debugger
+  end
+  
   def dialog_text_to_lines(dialog_hash)
     [dialog_hash["text"].split("{NEWLINE}")] + [dialog_hash["responses"].collect {|h| h["text"]}]
   end
@@ -111,6 +115,9 @@ class GameWindow < Gosu::Window
       end
     elsif id == Gosu::MsRight
       puts "#{self.mouse_x}, #{self.mouse_y}"
+    elsif id == Gosu::KbI
+      puts "showing inventory"
+      @game.show_inventory
     elsif id == Gosu::KbReturn
       if self.text_input
         begin

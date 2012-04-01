@@ -1,6 +1,6 @@
 # the name of the module should exactly match the name of the objects folder
 
-module HighSchoolHallwayToHighSchoolGym
+module Key
   
   # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
   def examine_from_xy
@@ -8,8 +8,8 @@ module HighSchoolHallwayToHighSchoolGym
   end
   
   def on_examine()
-    game.move_to_area("Mark", "HighSchool")
-    game.change_area("HighSchool")
+    # what's the procedure to make mark say something on examining an object
+    to_inventory()
   end
   
 end
