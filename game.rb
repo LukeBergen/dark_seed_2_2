@@ -1,5 +1,6 @@
 require './game_object'
 require './area'
+require './inventory_item'
 
 module ZOrder
   Background, Objects, Player, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
@@ -120,9 +121,9 @@ class Game
   end
   
   def show_inventory()
-    game_objects.values.each do |obj|
-      obj.stop_animation
-    end
+    # game_objects.values.each do |obj|
+    #   obj.stop_animation
+    # end
     @last_area = get_state("Game", "current_area")
     change_area("Inventory")
   end

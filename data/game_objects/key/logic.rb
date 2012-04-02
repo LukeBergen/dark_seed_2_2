@@ -2,6 +2,8 @@
 
 module Key
   
+  include InventoryItem
+  
   # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
   def examine_from_xy
     [0, 0]
