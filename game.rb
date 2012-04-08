@@ -33,7 +33,8 @@ class Game
   end
   
   def load_areas
-    {"DevRoom" => Area.new(self, "DevRoom"), "HighSchoolGym" => Area.new(self, "HighSchoolGym"), "HighSchoolHallway" => Area.new(self, "HighSchoolHallway"), "Inventory" => Area.new(self, "Inventory")}
+    area_names = Dir.entries("./data/areas") - [".", "..", ".DS_Store"]
+    area_names.inject({}) {|result, area_name| result[area_name] = Area.new(self, area_name); result}
   end
   
   def current_area

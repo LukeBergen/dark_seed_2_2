@@ -44,8 +44,24 @@ Game State:
     inventory_image: default.png
     default_image: default.png
     current_area: HighSchoolHallway
-    x: 30
+    x: 100
     y: 15
+    z: 2
+  BoxOfNails:
+    current_image: default.png
+    inventory_image: default.png
+    default_image: default.png
+    current_area: HighSchoolHallway
+    x: 50
+    y: 300
+    z: 2
+  NailPlank:
+    current_image: default.png
+    inventory_image: default.png
+    default_image: default.png
+    current_area: "Null"
+    x: 50
+    y: 300
     z: 2
   Combiner:
     current_image: default.png
