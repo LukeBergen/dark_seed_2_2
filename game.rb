@@ -98,6 +98,7 @@ class Game
       set_state("drag_start_x", mouse_x)
       set_state("drag_start_y", mouse_y)
       clicked_obj.set_state("mouse_down_on", true)
+      clicked_obj.set_state("awaiting_combination", false)
       clicked_obj.set_state("dragging", true) if (clicked_obj.get_state("draggable"))
     elsif (get_state("can_move"))
       puts "you clicked an area.  Moving to that area"
