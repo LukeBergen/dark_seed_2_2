@@ -94,24 +94,25 @@ class GameWindow < Gosu::Window
   end
   
   def dialog_text_to_lines(dialog_hash)
-    [dialog_hash["text"].split("{NEWLINE}")] + [dialog_hash["responses"].collect {|h| h["text"]}]
+    [dialog_hash["text"].split("{NEWLINE}")] + [(dialog_hash["responses"] || []).collect {|h| h["text"]}]
   end
   
   def button_down(id)
     if id == Gosu::KbEscape
       close
     elsif id == Gosu::MsLeft
-      puts "left click at #{self.mouse_x}, #{self.mouse_y}"
+      puts "left mouse down at #{self.mouse_x}, #{self.mouse_y}"
       if (@game.current_dialog_hash)
         if (@currently_selected_line >= 0)
           actions = @game.current_dialog_hash["responses"][@currently_selected_line]["actions"]
           @game.finish_dialog
           @dialog_scroll_height = 0
           @currently_selected_line = -1
+          puts "actions: #{actions}"
           @game.do_actions(actions)
         end
       else
-        @game.left_click(self.mouse_x, self.mouse_y)
+        @game.left_mouse_down(self.mouse_x, self.mouse_y)
       end
     elsif id == Gosu::MsRight
       puts "#{self.mouse_x}, #{self.mouse_y}"
@@ -146,6 +147,14 @@ class GameWindow < Gosu::Window
       self.text_input = Gosu::TextInput.new
     else
       puts "button pressed: #{id}"
+    end
+  end
+  
+  def button_up(id)
+    if id == Gosu::MsLeft
+      if (! @game.current_dialog_hash)
+        @game.left_mouse_up(self.mouse_x, self.mouse_y)
+      end
     end
   end
   

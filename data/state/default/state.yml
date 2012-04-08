@@ -2,6 +2,7 @@
 Game State:
   Game:
     current_area: DevRoom
+    can_move: true
   FarmerJim:
     next_dialog: first dialog
     current_image: idle.png
@@ -32,5 +33,24 @@ Game State:
     z: 2
   Key:
     current_image: default.png
-    inventory_image: inventory.png
+    inventory_image: default.png
+    default_image: default.png
     current_area: HighSchoolHallway
+    x: 5
+    y: 20
+    z: 2
+  WoodPlank:
+    current_image: default.png
+    inventory_image: default.png
+    default_image: default.png
+    current_area: HighSchoolHallway
+    x: 30
+    y: 15
+    z: 2
+  Combiner:
+    current_image: default.png
+    current_area: Inventory
+    mouse_up_priority: 500
+    x: 300
+    y: 50
+    z: 1

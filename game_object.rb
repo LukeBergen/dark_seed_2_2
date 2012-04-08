@@ -90,21 +90,24 @@ class GameObject
     if (@current_animation)
       @current_animation.tick
     end
+    
+    if (get_state("dragging"))
+      self.x = @game.mouse_x - self.mouse_offset_x
+      self.y = @game.mouse_y - self.mouse_offset_y
+    end
+    
   end
   
   def start_animation(ani_name)
-    puts "starting animation: #{@animations[ani_name]}"
     @current_animation = @animations[ani_name]
   end
   
   def stop_animation
-    puts "stopping animation: #{@current_animation}"
     @current_animation.reset if @current_animation
     @current_animation = nil
   end
   
   def set_image(img_name)
-    puts "setting image to: #{img_name}"
     set_state("current_image", img_name)
   end
   
@@ -164,7 +167,9 @@ class GameObject
       dirname ||= @name
       load("./data/game_objects/#{dirname}/logic.rb")
       self.extend(Kernel.const_get(@name))
-    rescue Exception
+    rescue Exception => e
+      puts "Exception occurred trying to load logic for #{self.name}.  Exception follows:"
+      puts e.backtrace
     end
     
     @state = game.state[self.name]
@@ -176,7 +181,6 @@ class GameObject
   end
   
   def move_to(area_name, x=nil, y=nil)
-    set_state("current_area", area_name)
     game.move_object(self.name, area_name, x, y)
   end
   
@@ -185,7 +189,16 @@ class GameObject
   end
   
   def on_click(mouse_x, mouse_y)
-    game.do_player_move(self.x + examine_from_xy.first, self.y + examine_from_xy.last, ["game_objects['#{self.name}'].on_examine()"])
+    if (get_state("Game", "can_move"))
+      game.do_player_move(self.x + examine_from_xy.first, self.y + examine_from_xy.last, ["game_objects['#{self.name}'].on_examine()"])
+    end
+  end
+  
+  def on_drag_complete(mouse_x, mouse_y)
+    obj = @game.mouse_over_objects(mouse_x, mouse_y, "mouse_up").first
+    if (obj)
+      obj.acted_on_by(self)
+    end
   end
   
   def on_examine()
@@ -198,11 +211,6 @@ class GameObject
   
   def animate(ani_name, after=[])
     # TODO. objects need to be able to do animations and then do actions on animation complete
-  end
-  
-  def to_inventory()
-    @areas[self.current_area].game_objects.delete(self.name)
-    self.current_area = "Inventory"
   end
   
   def examine_from_xy()

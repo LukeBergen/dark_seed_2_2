@@ -78,23 +78,57 @@ class Game
     @game_objects
   end
   
-  def left_click(x, y)
+  def mouse_x
+    @game_window.mouse_x
+  end
+  
+  def mouse_y
+    @game_window.mouse_y
+  end
+  
+  def left_mouse_down(mouse_x, mouse_y)
     # figure out action
-    clicked_obj = nil
-    current_area.game_objects.each do |obj_name|
-      next if (obj_name == "game")
-      obj = @game_objects[obj_name]
-      if (x >= (obj.x || 0.0) && y >= (obj.y || 0.0) && x <= ((obj.x || 0.0) + obj.width) && y <= ((obj.y || 0.0) + obj.height))
-        clicked_obj = obj
+    clicked_obj = mouse_over_objects(mouse_x, mouse_y, "mouse_down").first
+    puts "mouse_down on object: #{clicked_obj.name}" if clicked_obj
+    if (clicked_obj)
+      clicked_obj.set_state("initial_x", (clicked_obj.x || 0.0))
+      clicked_obj.set_state("initial_y", (clicked_obj.y || 0.0))
+      clicked_obj.set_state("mouse_offset_x", mouse_x - (clicked_obj.x || 0.0))
+      clicked_obj.set_state("mouse_offset_y", mouse_y - (clicked_obj.y || 0.0))
+      set_state("drag_start_x", mouse_x)
+      set_state("drag_start_y", mouse_y)
+      clicked_obj.set_state("mouse_down_on", true)
+      clicked_obj.set_state("dragging", true) if (clicked_obj.get_state("draggable"))
+    elsif (get_state("can_move"))
+      puts "you clicked an area.  Moving to that area"
+      do_player_move(mouse_x, mouse_y)
+    end
+  end
+  
+  def left_mouse_up(mouse_x, mouse_y)
+    puts "left mouse up at #{mouse_x}, #{mouse_y}"
+    obj = @game_objects.values.select {|obj| obj.get_state("mouse_down_on")}.first
+    if (obj)
+      obj.set_state("dragging", false)
+      obj.set_state("mouse_down_on", false)
+      if (get_state("drag_start_x") == mouse_x && get_state("drag_start_y") == mouse_y)
+        obj.on_click(mouse_x, mouse_y)
+      else
+        obj.on_drag_complete(mouse_x, mouse_y)
       end
     end
-    
-    if (clicked_obj)
-      clicked_obj.on_click(x, y)
-    else
-      puts "you clicked an area.  Moving to that area"
-      do_player_move(x, y)
+  end
+  
+  def mouse_over_objects(x, y, action="mouse_down")
+    objects = []
+    current_area.game_objects.each do |obj_name|
+      next if (obj_name == "Game")
+      obj = @game_objects[obj_name]
+      if (x >= (obj.x || 0.0) && y >= (obj.y || 0.0) && x <= ((obj.x || 0.0) + obj.width) && y <= ((obj.y || 0.0) + obj.height))
+        objects << obj
+      end
     end
+    objects.sort {|obj1, obj2| (obj1.send((action+"_priority").to_sym) || obj1.z || -1) <=> (obj2.send((action+"_priority").to_sym) || obj2.z || -1) }.reverse
   end
   
   def do_player_move(x, y, after_move=nil)
@@ -112,11 +146,12 @@ class Game
     game_objects["Mark"]
   end
   
-  def do_dialog(dialog_hash)
-    if (dialog_hash && dialog_hash.class == Hash)
-      @current_dialog_hash = dialog_hash
+  def do_dialog(dialog_hash_or_obj_name, dialog_name=nil)
+    puts "doing dialog #{dialog_hash_or_obj_name}:#{dialog_name}"
+    if (dialog_hash_or_obj_name && dialog_hash_or_obj_name.class == Hash)
+      @current_dialog_hash = dialog_hash_or_obj_name
     else
-      @current_dialog_hash = @game_objects[dialog_hash].dialogs()[get_state(dialog_hash, "next_dialog")]
+      @current_dialog_hash = @game_objects[dialog_hash_or_obj_name].dialogs()[(dialog_name || get_state(dialog_hash_or_obj_name, "next_dialog"))]
     end
   end
   
@@ -126,6 +161,7 @@ class Game
     # end
     @last_area = get_state("Game", "current_area")
     change_area("Inventory")
+    set_state("can_move", false)
   end
   
   def leave_inventory()
@@ -133,6 +169,7 @@ class Game
       obj.stop_animation
     end
     change_area(@last_area)
+    set_state("can_move", true)
   end
   
   def finish_dialog
@@ -203,10 +240,10 @@ class Game
     end
   end
   
-  def move_object(obj_name, area_name, x=nil, y=nil)
-    old_area = @areas.values.select {|a| a.game_objects.include?(obj_name)}.first
-    old_area.game_objects.delete(obj_name) if old_area
-    @areas[area_name].game_objects << obj_name
+  def move_object(obj_name, new_area, x=nil, y=nil)
+    @areas[@game_objects[obj_name].get_state("current_area")].remove_object(obj_name)
+    @areas[new_area].add_object(obj_name)
+    game_objects[obj_name].set_state("current_area", new_area)
     if (x && y)
       game_objects[obj_name].x = x
       game_objects[obj_name].y = y
@@ -221,21 +258,30 @@ class Game
     @areas[to_area].enter_coordinates[from_area]
   end
   
-  def set_state(obj_name, state_name, state_val)
-    @state[obj_name] ||= {}
-    @state[obj_name][state_name] = state_val
+  def set_state(obj_name_or_state_name, state_name_or_value, value=nil)
+    if (value.nil?)
+      @state["Game"] ||= {}
+      @state["Game"][obj_name_or_state_name] = state_name_or_value
+    else
+      @state[obj_name_or_state_name] ||= {}
+      @state[obj_name_or_state_name][state_name_or_value] = value      
+    end
   end
   
-  def get_state(obj_name, state_name)
-    @state[obj_name] ? @state[obj_name][state_name] : nil
+  def get_state(obj_name_or_state_name, state_name=nil)
+    if (state_name)
+      @state[obj_name_or_state_name] ? @state[obj_name_or_state_name][state_name] : nil
+    else
+      @state["Game"][obj_name_or_state_name]
+    end
   end
   
   def add_to_inventory(item_name)
-    set_state("game", "inventory", (get_state("game", "inventory") || []) + [item_name])
+    set_state("game", "inventory", (get_state("Game", "inventory") || []) + [item_name])
   end
   
   def remove_from_inventory(item_name)
-    set_state("game", "inventory", (get_state("game", "inventory") || []) - [item_name])
+    set_state("game", "inventory", (get_state("Game", "inventory") || []) - [item_name])
   end
   
   def load_game_objects()

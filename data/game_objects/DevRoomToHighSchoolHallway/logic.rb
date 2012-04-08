@@ -8,6 +8,7 @@ module DevRoomToHighSchoolHallway
   end
   
   def on_examine()
+    puts "on_examine"
     game.move_object("Mark", "HighSchoolHallway", 400, 400)
     game.change_area(warp_to_area)
   end
