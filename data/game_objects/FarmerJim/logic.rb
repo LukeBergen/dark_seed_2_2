@@ -56,10 +56,10 @@ module FarmerJim
     }
   end
   
-  # def on_examine()
-  #   # based on what the state is, (and even using the game's state for global variables and such)
-  #   # do whatever needs to be done on this object being examined.
-  #   puts "I'm #{name} and I just been probed"
-  # end
+  def on_examine()
+    # based on what the state is, (and even using the game's state for global variables and such)
+    # do whatever needs to be done on this object being examined.
+    game.do_dialog(dialogs()[get_state("next_dialog")])
+  end
   
 end

@@ -171,7 +171,11 @@ class Game
         if (noti.params && noti.params.is_a?(Array))
           noti.params.each do |p|
             puts "evaling: #{p}"
-            self.instance_eval(p)
+            #begin
+              self.instance_eval(p)
+            #rescue
+            #  puts "ERROR: error occurred evaling #{p}"
+            #end
           end
         end
         @notifications.delete(noti)
@@ -181,14 +185,25 @@ class Game
   
   def save_game(save_name="save1")
     puts "saving game: #{save_name}"
+    save_name = "default_" if save_name == "default"
+    begin
+      Dir::mkdir("./data/state/#{save_name}")
+    rescue
+    end
+    state_yaml = YAML::dump(@state)
+    save_file = "./data/state/#{save_name}/state.yml"
+    File.open(save_file, 'w') {|f| f.write(state_yaml)}
   end
   
-  def load_game(save_name="save1")
+  def load_game(save_name="default")
     puts "loading game: #{save_name}"
+    begin
+      save_file = "./data/state/#{save_name}/state.yml"
+      @state = YAML::load(File.open(save_file, 'r'))
+    end
   end
   
   def move_object(obj_name, area_name, x=nil, y=nil)
-    # BOOKMARK
     old_area = @areas.values.select {|a| a.game_objects.include?(obj_name)}.first
     old_area.game_objects.delete(obj_name) if old_area
     @areas[area_name].game_objects << obj_name
@@ -215,6 +230,14 @@ class Game
     @state[obj_name] ? @state[obj_name][state_name] : nil
   end
   
+  def add_to_inventory(item_name)
+    set_state("game", "inventory", (get_state("game", "inventory") || []) + [item_name])
+  end
+  
+  def remove_from_inventory(item_name)
+    set_state("game", "inventory", (get_state("game", "inventory") || []) - [item_name])
+  end
+  
   def load_game_objects()
     objs = {}
     objs_dir = "./data/game_objects"
@@ -224,7 +247,7 @@ class Game
         objs[obj_name] = GameObject.new(self, obj_name)
         objs[obj_name].init
         
-        @areas[objs[obj_name].get_state("current_area")].game_objects << obj_name if objs[obj_name].get_state("current_area")
+        @areas[objs[obj_name].get_state("current_area")].add_object(obj_name) if objs[obj_name].get_state("current_area")
         
         # at this point there's only one level of recurrsion so sub_sub_objects aren't possible
         # if that ends up being a need I'll generify this to take arbitrarily deep sub_object loading

@@ -189,7 +189,7 @@ class GameObject
   end
   
   def on_examine()
-    game.do_dialog(dialogs()[get_state("next_dialog")])
+    #game.do_dialog(dialogs()[get_state("next_dialog")])
   end
   
   def enter_coordinates(from_area, to_area)

@@ -30,9 +30,6 @@ Game State:
     x: 400
     y: 0
     z: 2
-    warp_to_area: HighSchoolGym
-    warp_to_x: 100
-    warp_to_y: 200
   Key:
     current_image: default.png
     inventory_image: inventory.png
