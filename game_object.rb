@@ -12,7 +12,7 @@ class GameObject
     @name = name
     @dx = @dy = @new_x = @new_y = nil
     @speed = 5.0
-    @showing = @moving = false
+    @moving = false
     @animations = {}
     @images = {}
     @current_animation = nil
@@ -33,18 +33,6 @@ class GameObject
         val
       end
     end
-  end
-  
-  def show?
-    @showing
-  end
-  
-  def show
-    @showing = true
-  end
-  
-  def hide
-    @showing = false
   end
   
   def width

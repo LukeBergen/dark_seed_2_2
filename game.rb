@@ -203,7 +203,7 @@ class Game
   end
   
   def enter_coordinates(from_area, to_area)
-    to_area.enter_coordinates[from_area]
+    @areas[to_area].enter_coordinates[from_area]
   end
   
   def set_state(obj_name, state_name, state_val)
