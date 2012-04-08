@@ -162,10 +162,10 @@ class GameObject
   end
   
   def load_logic(dirname=nil)
-    # first require anything under data/game_objects/#{@name}/logic.rb
+    # first require anything under data/game_objects/#{@name}/#{@name}.rb
     begin
       dirname ||= @name
-      load("./data/game_objects/#{dirname}/logic.rb")
+      load("./data/game_objects/#{dirname}/#{dirname}.rb")
       self.extend(Kernel.const_get(@name))
     rescue Exception => e
       puts "Exception occurred trying to load logic for #{self.name}.  Exception follows:"
