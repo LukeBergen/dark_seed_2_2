@@ -20,7 +20,6 @@ module Combiner
         @game.game_objects[combine_into].x = delete.x
         @game.game_objects[combine_into].y = delete.y
       end
-      debugger
       @game.game_objects[combine_into].to_inventory
     end
   end

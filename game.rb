@@ -1,6 +1,7 @@
 require './game_object'
 require './area'
 require './inventory_item'
+require './notification'
 
 module ZOrder
   Background, Objects, Player, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
@@ -135,13 +136,28 @@ class Game
   
   def do_player_move(x, y, after_move=nil)
     @notifications.each do |noti|
-      if (noti.obj_name == "Mark" && noti.message = "move complete")
+      if (noti.name == "player move complete")
         @notifications.delete(noti)
       end
     end
-    @game_objects["Mark"].start_animation("move")
-    noti = register_notification("Mark", "move complete", ["game_objects['Mark'].stop_animation", "game_objects['Mark'].set_image('idle.png')"] + (after_move || []))
-    @game_objects["Mark"].move(x, y, noti)
+    player.start_animation("move")
+    player.set_state("moving", true)
+    condition_proc = Proc.new do |game|
+      !game.player.get_state("moving")
+    end
+    exec_proc = Proc.new do |game|
+      game.player.stop_animation
+      game.player.set_image('idle.png')
+      after_code = ""
+      if (after_move.is_a?(Array))
+        after_code = after_move.join("; ")
+      elsif (after_move.is_a?(String))
+        after_code = after_move
+      end
+      eval(after_code) if after_code != ""
+    end
+    @notifications << Notification.new("player move complete", condition_proc, exec_proc)
+    @game_objects["Mark"].move(x, y)
   end
   
   def player
@@ -189,34 +205,10 @@ class Game
     end
   end
   
-  def register_notification(obj_name, message, params=nil)
-    noti = Notification.new(obj_name, message, params)
-    @notifications << noti
-    noti
-  end
-  
-  def notify(obj, message)
-    @notifications.each do |noti|
-      if (noti.obj_name == obj.name && noti.message == message)
-        noti.triggered = true
-      end
-    end
-  end
-  
   def check_notifications
     @notifications.each do |noti|
-      if (noti.triggered)
-        #game_objects[noti.obj_name].respond_to_notification(noti.message, noti.params)
-        if (noti.params && noti.params.is_a?(Array))
-          noti.params.each do |p|
-            puts "evaling: #{p}"
-            #begin
-              self.instance_eval(p)
-            #rescue
-            #  puts "ERROR: error occurred evaling #{p}"
-            #end
-          end
-        end
+      if (noti.triggered?(self))
+        noti.exec(self)
         @notifications.delete(noti)
       end
     end
@@ -315,23 +307,6 @@ class Game
   
   def file_valid?(s)
     s != "." && s != ".." && s != ".DS_Store"
-  end
-  
-end
-
-class Notification
-  
-  attr_accessor :obj_name, :message, :triggered, :params
-  
-  def initialize(obj_name, message, params=nil)
-    @obj_name = obj_name
-    @message = message
-    @triggered = false
-    @params = params
-  end
-  
-  def trigger
-    @triggered = true
   end
   
 end

@@ -59,7 +59,7 @@ class GameObject
     current_image.draw((x || 0.0), (y || 0.0), (z || 0.0)) if current_image
   end
   
-  def move(new_x, new_y, notification=nil)
+  def move(new_x, new_y)
     @new_x = new_x
     @new_y = new_y
     dist = Gosu::distance((x || 0.0), (y || 0.0), @new_x, @new_y)
@@ -67,20 +67,16 @@ class GameObject
     @dx = (@new_x - (x || 0.0)) / dist
     @dy = (@new_y - (y || 0.0)) / dist
     
-    @notify_when_done = notification
-    @moving = true
+    set_state("moving", true)
   end
   
   def tick
-    if @moving
+    if get_state("moving")
       if (Gosu::distance((x || 0.0), (y || 0.0), @new_x, @new_y) < @speed)
         self.x = @new_x
         self.y = @new_y
         @new_x = @new_y = @dx = @dy = nil
-        @moving = false
-        if (@notify_when_done)
-          @notify_when_done.trigger
-        end
+        set_state("moving", false)
       else
         self.x = (x || 0.0) + (@dx * @speed)
         self.y = (y || 0.0) + (@dy * @speed)
