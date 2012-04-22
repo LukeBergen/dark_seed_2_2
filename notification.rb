@@ -1,5 +1,7 @@
 class Notification
   
+  attr_accessor :name
+  
   def initialize(name, condition_proc, execute)
     @name = name
     if (condition_proc.is_a?(String))
