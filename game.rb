@@ -245,6 +245,7 @@ class Game
   end
   
   def change_area(area_name)
+    puts "changing area to #{area_name}"
     self.current_area = area_name
   end
   

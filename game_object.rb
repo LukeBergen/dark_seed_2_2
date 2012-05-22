@@ -7,8 +7,8 @@ class GameObject
   
   attr_accessor :name, :state, :game
   
-  def initialize(game_obj, name, dirname=nil)
-    @game = game_obj
+  def initialize(game, name, dirname=nil)
+    @game = game
     @name = name
     @dx = @dy = @new_x = @new_y = nil
     @speed = 5.0
@@ -16,22 +16,23 @@ class GameObject
     @animations = {}
     @images = {}
     @current_animation = nil
-    @notify_when_done = nil
     reload(dirname)
   end
   
   def method_missing(meth_name, *args, &block)
-    meth_name = meth_name.to_s
-    if (meth_name[-1] == "=")
-      # strip off the = from meth_name and set the state of it
-      set_state(meth_name[0..-2], args.first)
+    raw_meth_name = meth_name.to_s.gsub("=", "")
+    
+    self.class.send(:define_method, raw_meth_name) {get_state(raw_meth_name)}
+    self.class.send(:define_method, raw_meth_name+"=") {|arg| set_state(raw_meth_name, arg)}
+    
+    puts "you tried accessing something that previously didn't exist: #{meth_name}(#{args})"
+    puts "because state = #{self.state}"
+    puts "and now still..  #{meth_name}(#{args})"
+    
+    if (args.length > 0)
+      return self.send(meth_name, *args)
     else
-      val = get_state(meth_name) || nil
-      if (!!Float(val) rescue false)
-        val.to_f
-      else
-        val
-      end
+      return self.send(meth_name)
     end
   end
   
@@ -192,8 +193,12 @@ class GameObject
   
   def on_drag_complete(mouse_x, mouse_y)
     obj = @game.mouse_over_objects(mouse_x, mouse_y, "mouse_up").first
-    if (obj)
-      obj.acted_on_by(self)
+    obj.tell(:acted_on_by, self) if obj
+  end
+  
+  def tell(meth_name, *args)
+    if (self.respond_to?(meth_name))
+      self.send(meth_name, *args)
     end
   end
   

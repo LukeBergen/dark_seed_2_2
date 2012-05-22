@@ -1,5 +1,7 @@
-require 'ruby-debug'
+#require 'ruby-debug'
+gem "gosu", :path => "./lib/gosu-0.7.41-universal-darwin"
 require 'gosu'
+#require './lib/gosu-0.7.41-universal-darwin/lib/gosu'
 require './game'
 
 class GameWindow < Gosu::Window
@@ -90,7 +92,7 @@ class GameWindow < Gosu::Window
   end
   
   def debugger
-    debugger
+    #debugger
   end
   
   def dialog_text_to_lines(dialog_hash)
