@@ -18,7 +18,7 @@ class Game
     @state = nil
     load_state()
     @game_objects = load_game_objects()
-    @current_dialog_hash = nil
+    @current_dialog = nil
     @current_menu = nil
     @notifications = []
     @inventory = []
@@ -164,13 +164,9 @@ class Game
     game_objects["Mark"]
   end
   
-  def do_dialog(dialog_hash_or_obj_name, dialog_name=nil)
+  def do_dialog(dialog)
     puts "doing dialog #{dialog_hash_or_obj_name}:#{dialog_name}"
-    if (dialog_hash_or_obj_name && dialog_hash_or_obj_name.class == Hash)
-      @current_dialog_hash = dialog_hash_or_obj_name
-    else
-      @current_dialog_hash = @game_objects[dialog_hash_or_obj_name].dialogs()[(dialog_name || get_state(dialog_hash_or_obj_name, "next_dialog"))]
-    end
+    @current_dialog = dialog
   end
   
   def show_inventory()
@@ -191,11 +187,11 @@ class Game
   end
   
   def finish_dialog
-    @current_dialog_hash = nil
+    @current_dialog = nil
   end
   
-  def current_dialog_hash
-    @current_dialog_hash
+  def current_dialog
+    @current_dialog
   end
   
   def do_actions(actions)

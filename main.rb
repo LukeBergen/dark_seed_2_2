@@ -57,7 +57,8 @@ class GameWindow < Gosu::Window
         obj.draw
       end
     end
-    if (@game.current_dialog_hash)
+    
+    if (@game.current_dialog)
       diag_x = 50
       diag_y = self.height - 120
       diag_width = 700

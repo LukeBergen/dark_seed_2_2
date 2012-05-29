@@ -1,6 +1,6 @@
 require 'gosu'
 require 'yaml'
-undef y
+#undef y
 require './animation'
 
 class GameObject
@@ -219,7 +219,16 @@ class GameObject
   end
   
   def dialogs()
-    {}
+    @dialogs
+  end
+  
+  def do_dialog(dialog_name=nil)
+    if (dialog_name)
+      dialog = @dialogs.find {|d| d.name == dialog_name}
+    else
+      dialog = @dialogs.find {|d| d.name == self.get_state("next_dialog")}
+    end
+    @game.do_dialog(dialog)
   end
   
   def get_state(state_name_or_obj_name, state_name=nil)

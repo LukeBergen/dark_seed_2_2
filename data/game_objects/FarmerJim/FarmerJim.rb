@@ -2,12 +2,91 @@
 
 module FarmerJim
   
-  # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
+  def initialize(*args)
+    @dialogs = build_dialogs
+    attr_accessor :dialogs
+    super(*args)
+  end
+  
   def examine_from_xy
     [self.width + 20, 20]
   end
   
-  def dialogs
+  def build_dialogs
+    dialogs = [
+      Dialog.new(
+        :name => "monolog one",
+        :text => "Line 1{NEWLINE}Line 2{NEWLINE}Line 3{NEWLINE}Line 4",
+        :audio_file => nil,
+        :responses => [
+          Dialog::Response.new(
+            :text => "Investigating my brothers death",
+            :audio_file => nil
+            :after_response => Proc.new() do |game|
+              self.do_dialog("why investigating")
+            end
+          )
+        ]
+      ),
+      Dialog.new(
+        :name => "first dialog",
+        :text => "Hello main charactor. What are you doing?",
+        :audio_file => nil,
+        :responses => [
+          Dialog::Response.new(
+            :text => "Investigating my brothers death",
+            :audio_file => nil
+            :after_response => Proc.new() do |game|
+              self.do_dialog("why investigating")
+            end
+          ),
+          Dialog::Response.new(
+            :text => "Just visiting the ol' town",
+            :audio_file => nil
+            :after_response => Proc.new() do |game|
+              self.do_dialog("thats nice")
+            end
+          )
+        ]
+      ),
+      Dialog.new(
+        :name => "why investigating",
+        :text => "There's nothing here to investigate! Go away now!",
+        :audio_file => nil,
+        :responses => [
+          Dialog::Response.new(
+            :after_response => Proc.new() do |game|
+              self.do_dialog("I told you")
+            end
+          ),
+      ),
+      Dialog.new(
+        :name => "thats nice",
+        :text => "Well that's nice. Maybe we'll see each other around again soon.{NEWLINE}I have to go now.  Bye",
+        :audio_file => nil,
+        :responses => [
+          Dialog::Response.new(
+            :after_response => Proc.new() do |game|
+              self.set_state("next_dialog", "have to go")
+            end
+          )
+        ]
+      ),
+      Dialog.new(
+        :name => "have to go",
+        :text => "Like I said, I have to be going.  Bye now",
+        :audio_file => nil
+      ),
+      Dialog.new(
+        :name => "I told you"
+        :text => "I told you there's nothing to investigate, now go away",
+        :audio_file => nil
+      )
+    ]
+    return dialogs
+  end
+  
+  def dialogs_old
     # this method should return a hash of the form:
     # { dialog_name => {"text"=>"text of dialog", "audio"=>"name of audio file", "responses"=>[{"text" => "text of response", "audio" => "audio file for response", "actions" => ["code that gets evaluated after this response is made", "more code to execute"]}, {more responses}]} }
     # where if the responses array has only one response whose hash does not contain the key "text", it will just be one of those "there is no response, just hit enter to continue and do the actions".
@@ -59,7 +138,8 @@ module FarmerJim
   def on_examine()
     # based on what the state is, (and even using the game's state for global variables and such)
     # do whatever needs to be done on this object being examined.
-    game.do_dialog(dialogs()[get_state("next_dialog")])
+    #game.do_dialog(dialogs()[get_state("next_dialog")])
+    game.do_dialog(@dialogs.find {|d| d.name == self.get_state("next_dialog") } )
   end
   
 end
