@@ -52,7 +52,7 @@ module FarmerJim
         :responses => [
           Dialog::Response.new(
             :after_response => Proc.new() do |game|
-              self.do_dialog("I told you")
+              self.next_dialog = "I told you"
             end
           )
         ]

@@ -11,7 +11,7 @@ module WoodPlank
   
   def on_examine()
     # what's the procedure to make mark say something on examining an object
-    @game.do_dialog("Mark", "Finds Wood Plank")
+    @game.do_dialog(@game.player.dialog("Finds Wood Plank"))
   end
   
 end

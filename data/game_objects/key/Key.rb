@@ -11,7 +11,7 @@ module Key
   
   def on_examine()
     # what's the procedure to make mark say something on examining an object
-    @game.do_dialog("Mark", "Finds Key")
+    @game.do_dialog(@game.player.dialog("Finds Key"))
   end
   
 end

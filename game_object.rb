@@ -240,6 +240,10 @@ class GameObject
     @game.do_dialog(dialog)
   end
   
+  def dialog(name)
+    self.dialogs.find {|d| d.name == name}
+  end
+  
   def get_state(state_name_or_obj_name, state_name=nil)
     if state_name
       @game.get_state(state_name_or_obj_name, state_name)
