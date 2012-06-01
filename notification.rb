@@ -9,12 +9,7 @@ class Notification
     else
       @condition_proc = condition_proc
     end
-    
-    if (execute.is_a?(String))
-      @execute_proc = Proc.new {|game| game.eval(condition_proc || "")}
-    else
-      @execute_proc = execute
-    end
+    @execute_proc = execute
   end
   
   def triggered?(game)
@@ -27,6 +22,12 @@ class Notification
   
   def exec(game)
     puts "executing exec_proc.  @exec_proc: #{@execute_proc}"
-    @execute_proc.call(game)
+    if (@execute_proc.is_a?(Array))
+      @execute_proc.each do |proc|
+        proc.call(game)
+      end
+    else
+      @execute_proc.call(game)
+    end
   end
 end

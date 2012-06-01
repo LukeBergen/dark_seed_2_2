@@ -1,11 +1,12 @@
 require 'gosu'
 require 'yaml'
-#undef y
+undef y
 require './animation'
+require './dialog'
 
 class GameObject
   
-  attr_accessor :name, :state, :game
+  attr_accessor :name, :state, :game, :dialogs
   
   def initialize(game, name, dirname=nil)
     @game = game
@@ -16,7 +17,11 @@ class GameObject
     @animations = {}
     @images = {}
     @current_animation = nil
+    
     reload(dirname)
+    
+    @dialogs = build_dialogs
+    
   end
   
   def method_missing(meth_name, *args, &block)
@@ -34,6 +39,10 @@ class GameObject
     else
       return self.send(meth_name)
     end
+  end
+  
+  def build_dialogs
+    []
   end
   
   def width
@@ -159,6 +168,7 @@ class GameObject
   end
   
   def load_logic(dirname=nil)
+    
     # first require anything under data/game_objects/#{@name}/#{@name}.rb
     begin
       dirname ||= @name
@@ -186,8 +196,10 @@ class GameObject
   end
   
   def on_click(mouse_x, mouse_y)
+    examine_proc = Proc.new() {|game| game.game_objects["#{self.name}"].on_examine()}
     if (get_state("Game", "can_move"))
-      game.do_player_move(self.x + examine_from_xy.first, self.y + examine_from_xy.last, ["game_objects['#{self.name}'].on_examine()"])
+      #game.do_player_move(self.x + examine_from_xy.first, self.y + examine_from_xy.last, ["game_objects['#{self.name}'].on_examine()"])
+      game.do_player_move(self.x + self.examine_from_xy.first, self.y + self.examine_from_xy.last, examine_proc)
     end
   end
   
@@ -204,6 +216,7 @@ class GameObject
   
   def on_examine()
     #game.do_dialog(dialogs()[get_state("next_dialog")])
+    puts "nope, I've got this thing"
   end
   
   def enter_coordinates(from_area, to_area)
@@ -218,15 +231,11 @@ class GameObject
     [0, 0]
   end
   
-  def dialogs()
-    @dialogs
-  end
-  
   def do_dialog(dialog_name=nil)
     if (dialog_name)
-      dialog = @dialogs.find {|d| d.name == dialog_name}
+      dialog = dialogs.find {|d| d.name == dialog_name}
     else
-      dialog = @dialogs.find {|d| d.name == self.get_state("next_dialog")}
+      dialog = dialogs.find {|d| d.name == self.get_state("next_dialog")}
     end
     @game.do_dialog(dialog)
   end

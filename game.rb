@@ -145,18 +145,16 @@ class Game
     condition_proc = Proc.new do |game|
       !game.player.get_state("moving")
     end
-    exec_proc = Proc.new do |game|
+    stop_movement_proc = Proc.new do |game|
       game.player.stop_animation
       game.player.set_image('idle.png')
-      after_code = ""
-      if (after_move.is_a?(Array))
-        after_code = after_move.join("; ")
-      elsif (after_move.is_a?(String))
-        after_code = after_move
-      end
-      eval(after_code) if after_code != ""
     end
-    @notifications << Notification.new("player move complete", condition_proc, exec_proc)
+    exec_procs = [stop_movement_proc]
+    if (after_move)
+      exec_procs += [after_move]
+    end
+    exec_procs.flatten!
+    @notifications << Notification.new("player move complete", condition_proc, exec_procs)
     @game_objects["Mark"].move(x, y)
   end
   
@@ -165,7 +163,7 @@ class Game
   end
   
   def do_dialog(dialog)
-    puts "doing dialog #{dialog_hash_or_obj_name}:#{dialog_name}"
+    puts "doing dialog: #{dialog.name}"
     @current_dialog = dialog
   end
   
@@ -243,6 +241,11 @@ class Game
   def change_area(area_name)
     puts "changing area to #{area_name}"
     self.current_area = area_name
+  end
+  
+  def move_to(area_name)
+    move_object("Mark", new_area)
+    change_area(area_name)
   end
   
   def enter_coordinates(from_area, to_area)

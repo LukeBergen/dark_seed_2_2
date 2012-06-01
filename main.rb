@@ -1,4 +1,4 @@
-#require 'ruby-debug'
+require 'debugger'
 gem "gosu", :path => "./lib/gosu-0.7.41-universal-darwin"
 require 'gosu'
 #require './lib/gosu-0.7.41-universal-darwin/lib/gosu'
@@ -59,6 +59,8 @@ class GameWindow < Gosu::Window
     end
     
     if (@game.current_dialog)
+      # handle dialog
+      
       diag_x = 50
       diag_y = self.height - 120
       diag_width = 700
@@ -66,7 +68,7 @@ class GameWindow < Gosu::Window
       line_height = 23
       #self.draw_quad(diag_x, diag_y, 0xff000000, diag_x+diag_width, diag_y, 0xff000000, diag_x+diag_width, diag_y+diag_height, 0xff000000, diag_x, diag_y+diag_height, 0xff000000, ZOrder::DialogBackground)
       @dialog_background.draw(diag_x, diag_y, ZOrder::DialogBackground)
-      dialog_lines = dialog_text_to_lines(@game.current_dialog_hash)
+      dialog_lines = dialog_text_to_lines(@game.current_dialog)
       clip_to(diag_x, diag_y, diag_width, diag_height-20) do
         dialog_lines.first.each_with_index do |line, i|
           @dialog_font.draw(line, 100, self.height - 110 + (i * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, Gosu::Color::WHITE)
@@ -77,7 +79,8 @@ class GameWindow < Gosu::Window
                        diag_x + 10, diag_y + (line_height * c) + 4 - @dialog_scroll_height, Gosu::Color::GREEN,
                        diag_x + diag_width - 10, diag_y + (line_height * c) + 4 - @dialog_scroll_height, Gosu::Color::WHITE,
                        ZOrder::DialogEntities)
-        dialog_lines.last.each_with_index do |line, i|
+        @game.current_dialog.responses.each_with_index do |response, i|
+        # dialog_lines.last.each_with_index do |line, i|
           if (self.mouse_x > diag_x + 20 && self.mouse_x < diag_x + diag_width - 20 &&
               self.mouse_y > diag_y + 10 + ((i+c)*line_height) - @dialog_scroll_height && self.mouse_y < diag_y + 10 + ((i+c+1)*line_height) - @dialog_scroll_height )
             color = 0xffff00ff
@@ -85,6 +88,7 @@ class GameWindow < Gosu::Window
           else
             color = 0xffffff00
           end
+          line = response.text
           @dialog_font.draw(line, 100, self.height - 110 + ((i+c) * line_height) - @dialog_scroll_height, ZOrder::DialogEntities, 1.0, 1.0, color)
         end
       end
@@ -92,12 +96,11 @@ class GameWindow < Gosu::Window
     end
   end
   
-  def debugger
-    #debugger
-  end
-  
-  def dialog_text_to_lines(dialog_hash)
-    [dialog_hash["text"].split("{NEWLINE}")] + [(dialog_hash["responses"] || []).collect {|h| h["text"]}]
+  def dialog_text_to_lines(dialog)
+    if (dialog.responses.first.text == "")
+      dialog.responses.first.text = "Continue"
+    end
+    [dialog.text.split("{NEWLINE}")] + dialog.responses
   end
   
   def button_down(id)
@@ -105,14 +108,16 @@ class GameWindow < Gosu::Window
       close
     elsif id == Gosu::MsLeft
       puts "left mouse down at #{self.mouse_x}, #{self.mouse_y}"
-      if (@game.current_dialog_hash)
+      if (@game.current_dialog)
         if (@currently_selected_line >= 0)
-          actions = @game.current_dialog_hash["responses"][@currently_selected_line]["actions"]
+          # BOOKMARK.  farmer jim is having trouble here.
+          action = @game.current_dialog.responses[@currently_selected_line].after_response
           @game.finish_dialog
           @dialog_scroll_height = 0
           @currently_selected_line = -1
-          puts "actions: #{actions}"
-          @game.do_actions(actions)
+          puts "action: #{action}"
+          #@game.do_actions(actions)
+          action.call(@game)
         end
       else
         @game.left_mouse_down(self.mouse_x, self.mouse_y)
@@ -139,11 +144,11 @@ class GameWindow < Gosu::Window
         @dialog_scroll_height = 0
       end
     elsif id == Gosu::KbUp || id == Gosu::MsWheelDown
-      if (@game.current_dialog_hash)
+      if (@game.current_dialog)
         @dialog_scroll_height += 1
       end
     elsif id == Gosu::KbDown || id == Gosu::MsWheelUp
-      if (@game.current_dialog_hash)
+      if (@game.current_dialog)
         @dialog_scroll_height -= 1
       end
     elsif id == 50     # 50 is the ` key
@@ -155,7 +160,7 @@ class GameWindow < Gosu::Window
   
   def button_up(id)
     if id == Gosu::MsLeft
-      if (! @game.current_dialog_hash)
+      if (! @game.current_dialog)
         @game.left_mouse_up(self.mouse_x, self.mouse_y)
       end
     end
