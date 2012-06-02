@@ -16,6 +16,7 @@ module Combiner
       puts "some brilliant flash or something aaaaaaand..."
       object_names.each do |name|
         delete = @game.game_objects[name]
+        delete.set_state("awaiting_combination", false)
         delete.move_to("Null")
         @game.game_objects[combine_into].x = delete.x
         @game.game_objects[combine_into].y = delete.y
