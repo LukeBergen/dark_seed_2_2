@@ -215,8 +215,7 @@ class GameObject
   end
   
   def on_examine()
-    #game.do_dialog(dialogs()[get_state("next_dialog")])
-    puts "nope, I've got this thing"
+    puts "#{self.name} has been examined"
   end
   
   def enter_coordinates(from_area, to_area)

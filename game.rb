@@ -243,8 +243,9 @@ class Game
     self.current_area = area_name
   end
   
-  def move_to(area_name)
-    move_object("Mark", new_area)
+  def move_to(area_name, x = player.x, y = player.y)
+    puts "move_to called"
+    move_object("Mark", area_name, x, y)
     change_area(area_name)
   end
   

@@ -4,11 +4,6 @@ module BoxOfNails
   
   include InventoryItem
   
-  # THIS IS THE OFFSET FROM THIS OBJECT'S X,Y THAT THE PLAYER WILL MOVE TO WHEN EXAMINED
-  def examine_from_xy
-    [0, 0]
-  end
-  
   def on_examine()
     # what's the procedure to make mark say something on examining an object
     #@game.do_dialog("Mark", "Finds Box Of Nails")
