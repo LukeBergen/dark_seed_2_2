@@ -1,5 +1,4 @@
 require 'debugger'
-gem "gosu", :path => "./lib/gosu-0.7.41-universal-darwin"
 require 'gosu'
 #require './lib/gosu-0.7.41-universal-darwin/lib/gosu'
 require './game'

@@ -231,12 +231,8 @@ class GameObject
   end
   
   def do_dialog(dialog_name=nil)
-    if (dialog_name)
-      dialog = dialogs.find {|d| d.name == dialog_name}
-    else
-      dialog = dialogs.find {|d| d.name == self.get_state("next_dialog")}
-    end
-    @game.do_dialog(dialog)
+    d = dialog((dialog_name || self.get_state("next_dialog") || ""))
+    @game.do_dialog(d)
   end
   
   def dialog(name)
@@ -269,5 +265,3 @@ class GameObject
   end
   
 end
-
-# go = GameObject.new(Gosu::Window.new(640, 480, false), "main_guy")

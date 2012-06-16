@@ -4,7 +4,7 @@ require './inventory_item'
 require './notification'
 
 module ZOrder
-  Background, Objects, Player, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *1..12
+  Background, Objects, Player, Foreground, ForegroundObjects, DialogBackground, DialogEntities, Menu1, Menu2, Menu3, Mouse, SuperTop = *(1..12)
 end
 
 class Game

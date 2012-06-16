@@ -43,8 +43,20 @@ class Area
     # if there is no map to say where you can't go, just go straight to the endpoint
     return [[to_x, to_y]] unless @walkable_map
     
-    # TODO figure out a set of x, y points to move through to get from current x, y to destination x, y
+    # TODO implement A* or some such
     
   end
   
 end
+
+
+
+
+
+
+
+
+
+
+
+
