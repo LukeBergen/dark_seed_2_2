@@ -1,6 +1,5 @@
 require 'gosu'
 require 'yaml'
-undef y
 require './animation'
 require './dialog'
 

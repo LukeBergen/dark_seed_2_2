@@ -1,4 +1,3 @@
-require 'debugger'
 require 'gosu'
 #require './lib/gosu-0.7.41-universal-darwin/lib/gosu'
 require './game'
